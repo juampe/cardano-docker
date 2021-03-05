@@ -16,5 +16,5 @@ RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano && cd
 #HEALTHCHECK --interval=1m --timeout=10s --retries=3 --start-period=1m \
 #   CMD rpcinfo filer > /dev/null || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
 
-COPY init.sh /
-ENTRYPOINT [ "/init.sh" ]
+#COPY init.sh /
+#ENTRYPOINT [ "/init.sh" ]
