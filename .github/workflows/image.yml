@@ -29,4 +29,4 @@ jobs:
       - 
         name: Build the image
         run: |
-            docker buildx build --push --tag juampe/pihole-dot:latest --platform linux/arm/v7 .
+            docker buildx build --push --tag juampe/cardano:latest --platform linux/arm/v7 .
