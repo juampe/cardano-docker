@@ -5,7 +5,7 @@ ARG DEBIAN_FRONTEND="noninteractive"
 #Access to ghc 8.10.4 in experimental branch
 RUN /bin/echo -ne "deb http://deb.debian.org/debian/ experimental main\ndeb-src http://deb.debian.org/debian/ experimental main" > /etc/apt/sources.list.d/experimental.list && /bin/echo -ne "Package: *\nPin: release a=experimental\nPin-Priority: 1" > /etc/apt/preferences.d/experimental.pref && apt-get -y update
 
-RUN mkdir -p /usr/lib/ghc/package.conf.d/ && apt-get -y install --no-install-recommends ghc/experimental 
+RUN mkdir -p /usr/lib/ghc/package.conf.d/ && touch /usr/lib/ghc/package.conf.d/package.cache.lock && chmod +w /usr/lib/ghc/package.conf.d/package.cache.lock && apt-get -y install --no-install-recommends ghc/experimental 
 RUN apt-get -y upgrade && apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool autoconf iproute2 miniupnpc cabal-install cabal-debian
 #RUN apt-get clean && apt-get -y install --no-install-recommends ghc/experimental 
 RUN cabal update && cabal install --jobs=1 Cabal-3.2.0.0 
