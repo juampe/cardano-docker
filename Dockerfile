@@ -8,9 +8,10 @@ RUN /bin/echo -ne "deb http://deb.debian.org/debian/ experimental main\ndeb-src 
 RUN apt-get -y upgrade && apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool autoconf iproute2 miniupnpc cabal-install cabal-debian ghc
 #ghc/experimental
 #cabal 3.4.0.0.0 cabal-install-3.2.0.0 cabal install 
-RUN cabal update && cabal install -j1 cabal-install-3.2.0.0 --constraint="lukko -ofd-locking"
-# #Libsodium library ada flavour
-# RUN git clone https://github.com/input-output-hk/libsodium /libsodium && cd /libsodium && git checkout 66f017f1 && ./autogen.sh && ./configure && make -j1 && make -j1 install
+RUN cabal update && cabal install cabal-install-3.2.0.0 --constraint="lukko -ofd-locking"
+RUN cabal install ghc-8.10.2 --constraint="lukko -ofd-locking"
+#Libsodium library ada flavour
+RUN git clone https://github.com/input-output-hk/libsodium /libsodium && cd /libsodium && git checkout 66f017f1 && ./autogen.sh && ./configure && make -j1 && make -j1 install
 
 # #Compile cardano
 # RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano && cd /cardano && git fetch --all --recurse-submodules --tags && git checkout tags/1.26.0 
