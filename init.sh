@@ -23,6 +23,6 @@ fi
 IF=$(/sbin/ip route |grep ^default|awk '{print $5}')
 IP=$(/sbin/ip -4 addr show dev br0 scope global|grep inet|awk '{print $2}'|awk -F'/' '{print $1}')
 EXTIP=$(/usr/bin/upnpc -e "Cardano $VERSION" -a $IP 3000 3000 tcp | grep ExternalIPAddress|awk '{print $3}')
-EXTIP=$(/usr/bin/upnpc -e "Cardano $VERSION" -a $IP 3000 3000 udp | grep ExternalIPAddress|awk '{print $3}')
+
 
 /usr/local/bin/cardano-node run --database-path /cardano/db --socket-path /cardano/sockets/node.socket --config /cardano/config/mainnet-config.json  --topology /cardano/config/mainnet-topology.json --host-addr $IP --port 3000
