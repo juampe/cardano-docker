@@ -8,7 +8,7 @@ ARG CARDANO_VERSION=1.25.1
 #Access to ghc 8.10.4 in experimental branch
 RUN /bin/echo -ne "deb http://deb.debian.org/debian/ experimental main\ndeb-src http://deb.debian.org/debian/ experimental main" > /etc/apt/sources.list.d/experimental.list && /bin/echo -ne "Package: *\nPin: release a=experimental\nPin-Priority: 1" > /etc/apt/preferences.d/experimental.pref && apt-get -y update
 
-RUN apt-get -y upgrade && apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool autoconf iproute2 miniupnpc cabal-install cabal-debian build-dep ghc
+RUN apt-get -y upgrade && apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool autoconf iproute2 miniupnpc cabal-install cabal-debian ghc && apt-get build-dep ghc
 #ghc/experimental
 #cabal 3.4.0.0.0 cabal-install-3.2.0.0 cabal install 
 RUN cabal update && cabal install cabal-install-${CABAL_VERSION} --constraint="lukko -ofd-locking"
