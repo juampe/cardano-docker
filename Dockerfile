@@ -1,4 +1,5 @@
-FROM debian:bullseye as builder
+#FROM debian:10 as builder
+FROM ubuntu as builder
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG CABAL_VERSION=3.2.0.0
@@ -6,10 +7,9 @@ ARG GHC_VERSION=8.10.2
 ARG CARDANO_VERSION=1.25.1
 ARG JOBS="-j1"
 
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool autoconf iproute2 miniupnpc cabal-install cabal-debian ghc
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool autoconf iproute2 miniupnpc cabal-install cabal-debian ghc llvm-dev libllvm9
 #Install target cabal
-RUN cabal update && cabal install ${JOBS} cabal-install-${CABAL_VERSION}  --constraint="lukko -ofd-locking"
-RUN dpkg --purge ghc cabal-install
+RUN cabal update && cabal install ${JOBS} cabal-install-${CABAL_VERSION} --constraint="lukko -ofd-locking" && dpkg --purge ghc cabal-install
 #Install target ghc
 COPY install-ghc /
 RUN /install-ghc ${TARGETARCH} ${GHC_VERSION} && ghc-pkg recache
@@ -25,7 +25,7 @@ RUN cd /cardano && export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH" && e
 #Create dist file
 RUN sudo cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/local/bin/cardano-cli && sudo cp $(find /cardano/dist-newstyle/build -type f -name "cardano-node") /usr/local/bin/cardano-node && tar -cvf /cardano.tar /usr/local/bin/cardano* /sur/local/lib/libsodium*
 
-FROM debian:bullseye
+FROM ubuntu
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tar /
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq
