@@ -17,8 +17,9 @@ esac
 echo "URL $URL"
 
 wget "$URL" -O /ghc.tar.xz
-tar -xvf /ghc.tar.xz -C /
+tar -xf /ghc.tar.xz -C /
 cd /ghc-$RELEASE/
 ./configure
 make install
 cd /
+rm -Rf /ghc.tar.xz /ghc-$RELEASE
