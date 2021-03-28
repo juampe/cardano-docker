@@ -72,8 +72,11 @@ RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano \
   && ~/.cabal/bin/cabal build ${JOBS} cardano-cli cardano-node
 
 # Create dist file
-RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/local/bin/cardano-cli && cp $(find /cardano/dist-newstyle/build -type f -name "cardano-node") /usr/local/bin/cardano-node && tar -cvf /cardano.tar /usr/local/bin/cardano* /usr/local/lib/libsodium*
+RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/local/bin/cardano-cli \
+  && cp $(find /cardano/dist-newstyle/build -type f -name "cardano-node") /usr/local/bin/cardano-node \
+  && tar -cvf /cardano.tar /usr/local/bin/cardano* /usr/local/lib/libsodium*
 
+#Now the final container with our cardano installed
 FROM ubuntu:focal
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tar /
