@@ -33,7 +33,6 @@ Is a complex and very demanding docker build process based on cabal.
 Supported platforms:
 
 * linux/amd64
-* linux/arm/v7
 * linux/arm64/v8
 
 Access to the git [repository](https://github.com/juampe/cardano-docker)
