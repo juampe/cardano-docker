@@ -13,8 +13,8 @@ ARG JOBS="-j1"
 #C RUN sed -i -e "s/^\# deb-src/deb-src/g" /etc/apt/sources.list
 RUN sed -i -e "s/^\# deb-src/deb-src/g" /etc/apt/sources.list \
   && apt-get -y update \
-  #&& apt-get -y upgrade \
-  && apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config libffi-dev \
+  && apt-get -y upgrade \
+  && apt-get -y install --no-install-recommends bash curl wget ca-certificates automake build-essential pkg-config libffi-dev \
     libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool autoconf iproute2 \
     cabal-install cabal-debian ghc llvm-9 llvm-9-dev python3 libgmp-dev libncurses-dev libgmp3-dev happy alex python3-sphinx \
     texlive-xetex texlive-fonts-recommended fonts-lmodern texlive-latex-recommended texlive-latex-extra
