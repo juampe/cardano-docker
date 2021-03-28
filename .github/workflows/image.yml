@@ -6,7 +6,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      PLATFORMS: linux/arm/v7,linux/arm64/v8,linux/amd64
+      PLATFORMS: linux/arm64/v8,linux/amd64
     steps:
       - 
         name: Checkout code
