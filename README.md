@@ -10,6 +10,13 @@
 </p>
 <!-- markdownlint-enable MD033 -->
 
+# Work in progress, please keep waiting.
+We are working very hard, to bring this container. Our VM's are very busy too.
+Please undestand that this is an "spartan race" building process.
+* Phase 1 Build ghc 8.10.2 compatible with state-of-the-art qemu for multi architecture CI/CD
+* Phase 2 Build Cabal 3.2.0.0 free off
+* Phase 3 Bulid Cardano 1.25.1
+
 # Multiarch cardano docker container 🐳
 Cardano docker is can now be supported as container a in Raspberri Pi or AWS Gravitron container platform.
 It is based in ubuntu focal builder.
