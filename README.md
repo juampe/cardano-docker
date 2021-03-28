@@ -11,10 +11,13 @@
 <!-- markdownlint-enable MD033 -->
 
 # Multiarch cardano docker container 🐳
-Cardano docker is now supported as container in Raspberri Pi or AWS Gravitron container platform.
-It is based in debian:bullseye builder.
+Cardano docker is can now be supported as container a in Raspberri Pi or AWS Gravitron container platform.
+It is based in ubuntu focal builder.
 
 Access to the multi-platform docker [image](https://hub.docker.com/r/juampe/cardano).
+
+# Minimize supply chain attack
+You can supervise all the sources, all the build steps, build yourserlf
 
 ## Multi-platform image 👪
 
