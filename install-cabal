@@ -1,0 +1,26 @@
+#!/bin/bash
+ARCH=$1
+RELEASE=$2
+
+URLBASE="https://downloads.haskell.org/~cabal/cabal-install-${RELEASE}/cabal-install-${RELEASE}"
+echo "Download GHC $ARCH-$RELEASE"
+case $ARCH in
+	arm)
+		URL="$URLBASE-armv7-ubuntu-18.04.tar.xz"
+	;;
+	arm64)
+		URL="$URLBASE-aarch64-ubuntu-18.04.tar.xz"
+	;;
+	amd64) 
+		URL="$URLBASE-x86_64-ubuntu-16.04.tar.xz"
+        ;;
+esac
+echo "URL $URL"
+
+wget "$URL" -O /cabal.tar.xz
+tar -xf /cabal.tar.xz -C /
+cd /cabal-$RELEASE/
+./configure
+make install
+cd /
+rm -Rf /ghc.tar.xz /ghc-$RELEASE
