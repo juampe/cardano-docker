@@ -5,15 +5,15 @@ ARG CABAL_VERSION=3.2.0.0
 ARG GHC_VERSION=8.10.2
 ARG CARDANO_VERSION=1.25.1
 ARG JOBS="-j1"
-
 # export TARGETARCH=arm64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.2.0.0 GHC_VERSION=8.10.2 CARDANO_VERSION=1.25.1 JOBS="-j1"
+
 RUN sed -i -e "s/^\# deb-src/deb-src/g" /etc/apt/sources.list \
   && apt-get -y update && apt-get -y upgrade \
   && apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config \
     libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool \
     autoconf cabal-install cabal-debian ghc llvm-9 llvm-9-dev python3 libgmp-dev libncurses-dev libgmp3-dev happy alex \
     python3-sphinx texlive-xetex texlive-fonts-recommended fonts-lmodern texlive-latex-recommended texlive-latex-extra
-   
+ 
 #Install target ghc
 RUN apt-get -y build-dep ghc \
   && git clone --recurse-submodules --tags https://gitlab.haskell.org/ghc/ghc.git /ghc \
@@ -22,6 +22,7 @@ RUN apt-get -y build-dep ghc \
   && git submodule update --init \
   && ./boot \
   && ./configure \
+  && /bin/echo -ne "include mk/flavours/perf.mk\nGhcLibHcOpts+=-haddock\nHADDOCK_DOCS=NO\nBUILD_SPHINX_HTML=NO\nBUILD_SPHINX_PDF=NO\nHAS_OFD_LOCKING=NO" > mk/build.mk \
   && make ${JOBS} install
 
 #Libsodium library ada flavour
@@ -30,7 +31,6 @@ RUN git clone https://github.com/input-output-hk/libsodium /libsodium \
   && git checkout 66f017f1 \
   && ./autogen.sh \
   && ./configure \
-  && make ${JOBS} \
   && make ${JOBS} install
 
 #Install target cabal
