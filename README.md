@@ -26,10 +26,10 @@ Access to the multi-platform docker [image](https://hub.docker.com/r/juampe/card
 # Minimize supply chain attack
 You can supervise all the sources, all the build steps, build yourserlf
 
-## Multi-platform image 👪
+# Multi-platform image 👪
 
 This is an efford to build cardano for several common productions architectures.
-Is a complex and very demanding docker build process based on cabal.
+Is a complex and very demanding docker build process.
 Supported platforms:
 
 * linux/amd64
