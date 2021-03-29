@@ -12,7 +12,8 @@ RUN sed -i -e "s/^\# deb-src/deb-src/g" /etc/apt/sources.list \
   && apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config \
     libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool \
     autoconf cabal-install cabal-debian ghc llvm-9 llvm-9-dev python3 libgmp-dev libncurses-dev libgmp3-dev happy alex \
-    python3-sphinx texlive-xetex texlive-fonts-recommended fonts-lmodern texlive-latex-recommended texlive-latex-extra
+    python3-sphinx texlive-xetex texlive-fonts-recommended fonts-lmodern texlive-latex-recommended texlive-latex-extra \
+    linux-tools-generic xutils-dev
  
 #Install target ghc
 RUN apt-get -y build-dep ghc \
