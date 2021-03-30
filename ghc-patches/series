@@ -1,0 +1,16 @@
+use-debian-gen_contents_index
+ARM-VFPv3D16
+no-missing-haddock-file-warning
+buildpath-abi-stability.patch
+x32-use-native-x86_64-insn.patch
+use-stage1-binaries-for-install.patch
+kfreebsd-aclocal.m4
+local-mathjax
+fix-build-using-unregisterised-v8.6
+llvm-11.patch
+llvm-arm-unknown-linux-gnueabi.patch
+fix-32bit-atomic
+3c12355ece0fa14e534c71a9f7327eda9773fad9.patch
+11f8eef5a9625c77f78a829406c446b615ed6168.patch
+haddock-remove-googleapis-fonts
+#fix-big-endian-ffi
