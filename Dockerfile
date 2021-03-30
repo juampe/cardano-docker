@@ -26,8 +26,9 @@ RUN apt-get -y build-dep ghc \
   && for i in $(cat /ghc-patches/series|grep -v ^#);do echo $i ;cat /ghc-patches/$i |patch -p1 ;done \
   && ./boot \
   && ./configure \
+  && /bin/echo -ne "BuildFlavour=quick\nGhcLibHcOpts+=-haddock\nHAVE_OFD_LOCKING=0\nBUILD_EXTRA_PKGS=NO\nHADDOCK_DOCS=NO\nBUILD_MAN=NO\nBUILD_SPHINX_HTML=NO\nBUILD_SPHINX_PDF=NO" > mk/build.mk \
   && make ${JOBS} install
-  #&& /bin/echo -ne "BuildFlavour=quick\nGhcLibHcOpts+=-haddock\nHAVE_OFD_LOCKING=0\nBUILD_EXTRA_PKGS=NO\nHADDOCK_DOCS=NO\nBUILD_MAN=NO\nBUILD_SPHINX_HTML=NO\nBUILD_SPHINX_PDF=NO" > mk/build.mk \
+  
 
 #Libsodium library ada flavour
 RUN git clone https://github.com/input-output-hk/libsodium /libsodium \
