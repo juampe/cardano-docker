@@ -23,7 +23,7 @@ RUN apt-get -y build-dep ghc \
   && chown _apt:root . \
   && apt-get source ghc/experimental \
   && cd ghc-* \
-  && fakeroot dpkg-buildpackage
+  && fakeroot dpkg-buildpackage \
   && dpkg -i ../*.deb
 
 #Libsodium library ada flavour
