@@ -18,8 +18,8 @@ RUN sed -i -e "s/^\# deb-src/deb-src/g" /etc/apt/sources.list \
 
 #Install target cabal
 RUN cabal update \
-  && cabal install ${JOBS} cabal-install-${CABAL_VERSION} --constraint="lukko -ofd-locking" \
-  && dpkg --purge cabal-install
+  && cabal install ${JOBS} cabal-install-${CABAL_VERSION} --constraint="lukko -ofd-locking" 
+  #&& dpkg --purge cabal-install
 
 #Install target ghc with debian patches
 COPY patches /
