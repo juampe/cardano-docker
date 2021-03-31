@@ -2,10 +2,10 @@ FROM ubuntu:groovy as builder
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG CABAL_VERSION=3.2.0.0
-ARG GHC_VERSION=8.10.4
+ARG GHC_VERSION=8.10.2
 ARG CARDANO_VERSION=1.25.1
 ARG JOBS="-j1"
-# export TARGETARCH=arm64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.2.0.0 GHC_VERSION=8.10.4 CARDANO_VERSION=1.25.1 JOBS="-j1"
+# export TARGETARCH=arm64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.2.0.0 GHC_VERSION=8.10.2 CARDANO_VERSION=1.25.1 JOBS="-j2"
 
 RUN sed -i -e "s/^\# deb-src/deb-src/g" /etc/apt/sources.list \
   && apt-get -y update \
@@ -15,8 +15,13 @@ RUN sed -i -e "s/^\# deb-src/deb-src/g" /etc/apt/sources.list \
     autoconf cabal-install cabal-debian ghc llvm-11-dev clang-11 python3 libgmp-dev libncurses-dev libgmp3-dev happy alex \
     python3-sphinx texlive-xetex texlive-fonts-recommended fonts-lmodern texlive-latex-recommended texlive-latex-extra \
     linux-tools-generic xutils-dev
- 
-#Install target ghc HAVE_OFD_LOCKING=0
+
+#Install target cabal
+RUN cabal update \
+  && cabal install ${JOBS} cabal-install-${CABAL_VERSION} --constraint="lukko -ofd-locking" \
+  && dpkg --purge cabal-install
+
+#Install target ghc with debian patches
 COPY patches /
 RUN apt-get -y build-dep ghc \
   && git clone --recurse-submodules --tags https://gitlab.haskell.org/ghc/ghc.git /ghc \
@@ -27,8 +32,10 @@ RUN apt-get -y build-dep ghc \
   && ./boot \
   && ./configure \
   && /bin/echo -ne "GhcLibHcOpts+=-haddock\nHAVE_OFD_LOCKING=0\nBUILD_EXTRA_PKGS=NO\nHADDOCK_DOCS=NO\nBUILD_MAN=NO\nBUILD_SPHINX_HTML=NO\nBUILD_SPHINX_PDF=NO" > mk/build.mk \
-  && make ${JOBS} 
-RUN cd /ghc && make ${JOBS} install
+  && make ${JOBS} \
+  && make ${JOBS} install
+
+  #RUN cd /ghc 
   # && mv *.xz /ghc.tar.xz \
   # && tar -xf /ghc.tar.xz -C / \
   # && cd /ghc-${GHC_VERSION}/ \
@@ -36,7 +43,6 @@ RUN cd /ghc && make ${JOBS} install
   # && make install \
   # && cd / \
   # && rm -Rf /ghc.tar.xz /ghc-${GHC_VERSION}
-  
 
 #Libsodium library ada flavour
 RUN git clone https://github.com/input-output-hk/libsodium /libsodium \
@@ -46,10 +52,7 @@ RUN git clone https://github.com/input-output-hk/libsodium /libsodium \
   && ./configure \
   && make ${JOBS} install
 
-#Install target cabal
-RUN cabal update \
-  && cabal install ${JOBS} cabal-install-${CABAL_VERSION} --constraint="lukko -ofd-locking" \
-  && dpkg --purge cabal-install
+
 
 #Compile cardano 
 RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano \

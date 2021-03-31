@@ -1,0 +1,31 @@
+Description: Allow unregisterised ghc-8.6 to build newer GHC
+ Commit af9b744bbf1 introduced a regression stopping existing unregisterised
+ compilers from being able to compile newer versions of GHC. The problem is
+ that the bootstrap compiler uses the newer `includes/stg/MiscClosures.h` file
+ where some defines have been renamed, resulting in the following error:
+.
+ error: ‘stg_atomicModifyMutVarzh’ undeclared (first use in this function); did you mean ‘stg_atomicModifyMutVar2zh’?
+.
+ For more information, see https://gitlab.haskell.org/ghc/ghc/issues/17111.
+.
+ This patch can be removed, once ghc-8.6 is no longer the bootstrap compiler.
+Author: Ilias Tsitsimpis <iliastsi@debian.org>
+Bug: https://gitlab.haskell.org/ghc/ghc/issues/17111
+
+Index: ghc-8.10.1/includes/stg/MiscClosures.h
+===================================================================
+--- ghc-8.10.1.orig/includes/stg/MiscClosures.h
++++ ghc-8.10.1/includes/stg/MiscClosures.h
+@@ -391,8 +391,12 @@
+ RTS_FUN_DECL(stg_casSmallArrayzh);
+ 
+ RTS_FUN_DECL(stg_newMutVarzh);
++#if __GLASGOW_HASKELL__ < 808
++RTS_FUN_DECL(stg_atomicModifyMutVarzh);
++#else
+ RTS_FUN_DECL(stg_atomicModifyMutVar2zh);
+ RTS_FUN_DECL(stg_atomicModifyMutVarzuzh);
++#endif
+ RTS_FUN_DECL(stg_casMutVarzh);
+ 
+ RTS_FUN_DECL(stg_isEmptyMVarzh);
