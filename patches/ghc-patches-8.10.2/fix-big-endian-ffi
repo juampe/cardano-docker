@@ -1,0 +1,67 @@
+From 01f7052cc182c0ced85522dc775ebc490bf094ce Mon Sep 17 00:00:00 2001
+From: Peter Trommler <ptrommler@acm.org>
+Date: Thu, 11 Jun 2020 08:31:22 +0200
+Subject: [PATCH] FFI: Fix pass small ints in foreign call wrappers
+
+The Haskell calling convention requires integer parameters smaller
+than wordsize to be promoted to wordsize (where the upper bits are
+don't care). To access such small integer parameter read a word from
+the parameter array and then cast that word to the small integer
+target type.
+
+Fixes #15933
+---
+
+Index: ghc-8.10.1/compiler/deSugar/DsForeign.hs
+===================================================================
+--- ghc-8.10.1.orig/compiler/deSugar/DsForeign.hs
++++ ghc-8.10.1/compiler/deSugar/DsForeign.hs
+@@ -523,20 +523,43 @@
+          -- use that instead.  I hope the two coincide --SDM
+     )
+  where
++  platform = targetPlatform dflags
++
+   -- list the arguments to the C function
+   arg_info :: [(SDoc,           -- arg name
+                 SDoc,           -- C type
+                 Type,           -- Haskell type
+                 CmmType)]       -- the CmmType
+-  arg_info  = [ let stg_type = showStgType ty in
+-                (arg_cname n stg_type,
++  arg_info  = [ let stg_type = showStgType ty
++                    cmm_type = typeCmmType dflags (getPrimTyOf ty)
++                    stack_type
++                      = if int_promote (typeTyCon ty)
++                        then text "HsWord"
++                        else stg_type
++                in
++                (arg_cname n stg_type stack_type,
+                  stg_type,
+                  ty,
+-                 typeCmmType dflags (getPrimTyOf ty))
++                 cmm_type)
+               | (ty,n) <- zip arg_htys [1::Int ..] ]
+ 
+-  arg_cname n stg_ty
+-        | libffi    = char '*' <> parens (stg_ty <> char '*') <>
++  int_promote ty_con
++    | ty_con `hasKey` int8TyConKey = True
++    | ty_con `hasKey` int16TyConKey = True
++    | ty_con `hasKey` int32TyConKey
++    , platformWordSize platform > 4
++    = True
++    | ty_con `hasKey` word8TyConKey = True
++    | ty_con `hasKey` word16TyConKey = True
++    | ty_con `hasKey` word32TyConKey
++    , platformWordSize platform > 4
++    = True
++    | otherwise = False
++
++
++  arg_cname n stg_ty stack_ty
++        | libffi    = parens (stg_ty) <> char '*' <>
++                      parens (stack_ty <> char '*') <>
+                       text "args" <> brackets (int (n-1))
+         | otherwise = text ('a':show n)
+ 
