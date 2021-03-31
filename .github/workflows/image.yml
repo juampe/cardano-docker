@@ -29,9 +29,9 @@ jobs:
       - 
         name: Build the image
         run: |
-            docker buildx build --build-arg CARDANO_VERSION="$CARDANO_VERSION" --build-arg CABAL_VERSION="$CABAL_VERSION" --build-arg GHC_VERSION="$GHC_VERSION" --build-arg JOBS="$JOBS" --push --tag juampe/cardano:$CARDANO_VERSION --platform linux/amd64 .
+            docker buildx build --build-arg CARDANO_VERSION="$CARDANO_VERSION" --build-arg CABAL_VERSION="$CABAL_VERSION" --build-arg GHC_VERSION="$GHC_VERSION" --build-arg JOBS="$JOBS" --push --tag juampe/cardano:$CARDANO_VERSION --platform linux/arm64/v8,linux/amd64 .
         env:
           CABAL_VERSION: 3.2.0.0
-          GHC_VERSION: 8.10.4
+          GHC_VERSION: 8.10.2
           CARDANO_VERSION: 1.25.1
           JOBS: -j
