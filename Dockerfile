@@ -18,11 +18,11 @@ RUN sed -i -e "s/^\# deb-src/deb-src/g" /etc/apt/sources.list \
 
 #Install target cabal
 RUN cabal update \
-  && cabal install ${JOBS} cabal-install-${CABAL_VERSION} --constraint="lukko -ofd-locking" 
-  #&& dpkg --purge cabal-install
+  && cabal install ${JOBS} cabal-install-${CABAL_VERSION} --constraint="lukko -ofd-locking" \
+  && dpkg --purge cabal-install
 
 #Install target ghc with debian patches
-COPY patches /
+COPY patches/ /patches/
 RUN apt-get -y build-dep ghc \
   && git clone --recurse-submodules --tags https://gitlab.haskell.org/ghc/ghc.git /ghc \
   && cd /ghc \
@@ -31,9 +31,9 @@ RUN apt-get -y build-dep ghc \
   && for i in $(cat /patches/ghc-patches-${GHC_VERSION}/series|grep -v ^#);do echo $i ;cat /patches/ghc-patches-${GHC_VERSION}/$i |patch -p1 ;done \
   && ./boot \
   && ./configure \
-  && /bin/echo -ne "GhcLibHcOpts+=-haddock\nHAVE_OFD_LOCKING=0\nBUILD_EXTRA_PKGS=NO\nHADDOCK_DOCS=NO\nBUILD_MAN=NO\nBUILD_SPHINX_HTML=NO\nBUILD_SPHINX_PDF=NO" > mk/build.mk \
   && make ${JOBS} \
   && make ${JOBS} install
+  #&& /bin/echo -ne "GhcLibHcOpts+=-haddock\nHAVE_OFD_LOCKING=0\nBUILD_EXTRA_PKGS=NO\nHADDOCK_DOCS=NO\nBUILD_MAN=NO\nBUILD_SPHINX_HTML=NO\nBUILD_SPHINX_PDF=NO" > mk/build.mk \
 
   #RUN cd /ghc 
   # && mv *.xz /ghc.tar.xz \
