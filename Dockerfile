@@ -12,22 +12,30 @@ RUN sed -i -e "s/^\# deb-src/deb-src/g" /etc/apt/sources.list \
   && apt-get -y upgrade \
   && apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config \
     libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool \
-    autoconf cabal-install cabal-debian ghc llvm-9 llvm-9-dev python3 libgmp-dev libncurses-dev libgmp3-dev happy alex \
+    autoconf cabal-install cabal-debian ghc llvm-11-dev clang-11 python3 libgmp-dev libncurses-dev libgmp3-dev happy alex \
     python3-sphinx texlive-xetex texlive-fonts-recommended fonts-lmodern texlive-latex-recommended texlive-latex-extra \
     linux-tools-generic xutils-dev
  
 #Install target ghc HAVE_OFD_LOCKING=0
-COPY ghc-patches /
+COPY patches /
 RUN apt-get -y build-dep ghc \
   && git clone --recurse-submodules --tags https://gitlab.haskell.org/ghc/ghc.git /ghc \
   && cd /ghc \
   && git checkout ghc-${GHC_VERSION}-release \
   && git submodule update --init \
-  && for i in $(cat /ghc-patches/series|grep -v ^#);do echo $i ;cat /ghc-patches/$i |patch -p1 ;done \
+  && for i in $(cat /patches/ghc-patches-${GHC_VERSION}/series|grep -v ^#);do echo $i ;cat /patches/ghc-patches-${GHC_VERSION}/$i |patch -p1 ;done \
   && ./boot \
   && ./configure \
-  && /bin/echo -ne "BuildFlavour=perf\nGhcLibHcOpts+=-haddock\nHAVE_OFD_LOCKING=0\nBUILD_EXTRA_PKGS=NO\nHADDOCK_DOCS=NO\nBUILD_MAN=NO\nBUILD_SPHINX_HTML=NO\nBUILD_SPHINX_PDF=NO" > mk/build.mk \
-  && make ${JOBS} install
+  && /bin/echo -ne "GhcLibHcOpts+=-haddock\nHAVE_OFD_LOCKING=0\nBUILD_EXTRA_PKGS=NO\nHADDOCK_DOCS=NO\nBUILD_MAN=NO\nBUILD_SPHINX_HTML=NO\nBUILD_SPHINX_PDF=NO" > mk/build.mk \
+  && make ${JOBS} 
+RUN cd /ghc && make ${JOBS} install
+  # && mv *.xz /ghc.tar.xz \
+  # && tar -xf /ghc.tar.xz -C / \
+  # && cd /ghc-${GHC_VERSION}/ \
+  # && ./configure \
+  # && make install \
+  # && cd / \
+  # && rm -Rf /ghc.tar.xz /ghc-${GHC_VERSION}
   
 
 #Libsodium library ada flavour
