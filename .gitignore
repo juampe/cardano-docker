@@ -1,2 +1,4 @@
 *.sh
 Dockerfile.*
+*.tar
+*test

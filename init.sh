@@ -1,28 +1,72 @@
 #!/bin/bash
 
-export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
-export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 VERSION=$(/usr/local/bin/cardano-node --version|grep cardano-node|awk '{print $2}')
 
 #CONFIGURATION
-if [ ! -e "/cardano/config/mainnet-config.json" ]
+if [ ! -e "$NODE_CONFIG" ]
 then
 	echo "Initial config..."
-	mkdir -p /cardano
-	cd /cardano
+	mkdir -p $NODE_HOME
+	cd $NODE_HOME
 	mkdir -p config db sockets keys logs scripts  
 	cd config
-	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-config.json
-	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-byron-genesis.json
-	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-shelley-genesis.json
-	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-topology.json
-	ls -al mainnet*
+	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-config.json
+	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-byron-genesis.json
+	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-shelley-genesis.json
+	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-topology.json
+	ls -al $NODE_HOME/config/*
+	echo "============================="
+
+	
 fi
 
-IF=$(/sbin/ip route |grep ^default|awk '{print $5}')
-IP=$(/sbin/ip -4 addr show dev br0 scope global|grep inet|awk '{print $2}'|awk -F'/' '{print $1}')
-EXTIP=$(/usr/bin/upnpc -e "Cardano $VERSION" -a $IP 3000 3000 tcp | grep ExternalIPAddress|awk '{print $3}')
+if [ "$NODE_UPDATE_TOPOLOGY" =="true" ]
+then
+	if [ -n "$NODE_CUSTOM_PEERS" ]
+	then
+		INITIAL_PEERS=$(cat $NODE_TOPOLOGY |jq -r '.Producers[0]|[.addr,.port,.valency]|join(":")')
+		if [ -z "$NODE_CUSTOM_PEERS" ]
+		then
+			NODE_CUSTOM_PEERS=$INITIAL_PEERS
+		else
+			NODE_CUSTOM_PEERS=$INITIAL_PEERS,$NODE_CUSTOM_PEERS
+		fi		
+		/bin/echo -n "$NODE_CUSTOM_PEERS" | jq --slurp --raw-input --raw-output 'split(",") | map(split(":")) | map({"addr": .[0],"port": .[1],"valency": .[2]}) | {"Producers": .}' > $NODE_TOPOLOGY
+	fi
+fi
 
+if [ "$NODE_IP" == "" ]
+then
+	IF=$(/sbin/ip route |grep ^default|awk '{print $5}')
+	NODE_IP=$(/sbin/ip -4 addr show dev $IF scope global|grep inet|awk '{print $2}'|awk -F'/' '{print $1}')
+fi
 
-/usr/local/bin/cardano-node run --database-path /cardano/db --socket-path /cardano/sockets/node.socket --config /cardano/config/mainnet-config.json  --topology /cardano/config/mainnet-topology.json --host-addr $IP --port 3000
+#UPNP behind a upnp NAT
+if [ "$NODE_UPNP" == "true" ]
+then
+	EXTIP=$(/usr/bin/upnpc -e "Cardano $VERSION" -a $NODE_IP $NODE_PORT $NODE_PORT tcp | grep ExternalIPAddress|awk '{print $3}')
+fi
+
+#Run cardano
+if [ "$NODE_BLOCK_PRODUCER" == "true" ]
+then
+	/usr/local/bin/cardano-node run \
+  	--database-path $NODE_HOME/db \
+  	--socket-path $NODE_HOME/sockets/node.socket \
+  	--config $NODE_CONFIG  \
+  	--topology $NODE_TOPOLOGY \
+  	--host-addr $NODE_IP \
+  	--port $NODE_PORT \
+	--shelley-kes-key $NODE_SHELLEY_KES_KEY \
+	--shelley-vrf-key $NODE_SHELLEY_VRF_KEY \
+	--shelley-operational-certificate $NODE_SHELLEY_OPERATIONAL_CERTIFICATE
+else
+	/usr/local/bin/cardano-node run \
+  	--database-path $NODE_HOME/db \
+  	--socket-path $NODE_HOME/sockets/node.socket \
+  	--config $NODE_CONFIG  \
+  	--topology $NODE_TOPOLOGY \
+  	--host-addr $NODE_IP \
+  	--port $NODE_PORT
+fi

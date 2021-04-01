@@ -3,9 +3,9 @@ ARG TARGETARCH
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG CABAL_VERSION=3.2.0.0
 ARG GHC_VERSION=8.10.2
-ARG CARDANO_VERSION=1.25.1
+ARG NODE_VERSION=1.25.1
 ARG JOBS="-j1"
-# export TARGETARCH=arm64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.2.0.0 GHC_VERSION=8.10.2 CARDANO_VERSION=1.25.1 JOBS="-j2"
+# export TARGETARCH=arm64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.2.0.0 GHC_VERSION=8.10.2 NODE_VERSION=1.25.1 JOBS="-j2"
 
 RUN sed -i -e "s/^\# deb-src/deb-src/g" /etc/apt/sources.list \
   && apt-get -y update \
@@ -35,15 +35,6 @@ RUN apt-get -y build-dep ghc \
   && make ${JOBS} install
   #&& /bin/echo -ne "GhcLibHcOpts+=-haddock\nHAVE_OFD_LOCKING=0\nBUILD_EXTRA_PKGS=NO\nHADDOCK_DOCS=NO\nBUILD_MAN=NO\nBUILD_SPHINX_HTML=NO\nBUILD_SPHINX_PDF=NO" > mk/build.mk \
 
-  #RUN cd /ghc 
-  # && mv *.xz /ghc.tar.xz \
-  # && tar -xf /ghc.tar.xz -C / \
-  # && cd /ghc-${GHC_VERSION}/ \
-  # && ./configure \
-  # && make install \
-  # && cd / \
-  # && rm -Rf /ghc.tar.xz /ghc-${GHC_VERSION}
-
 #Libsodium library ada flavour
 RUN git clone https://github.com/input-output-hk/libsodium /libsodium \
   && cd /libsodium \
@@ -52,13 +43,11 @@ RUN git clone https://github.com/input-output-hk/libsodium /libsodium \
   && ./configure \
   && make ${JOBS} install
 
-
-
 #Compile cardano 
 RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano \
   && cd /cardano \
   && git fetch --all --recurse-submodules --tags \
-  && git checkout tags/${CARDANO_VERSION} \
+  && git checkout tags/${NODE_VERSION} \
   && ~/.cabal/bin/cabal configure -O0 -w ghc-${GHC_VERSION} \
   && /bin/echo -ne  "\npackage cardano-crypto-praos\n  flags: -external-libsodium-vrf\n" >>  cabal.project.local \
   && sed -i ~/.cabal/config -e "s/overwrite-policy:/overwrite-policy: always/g" \
@@ -75,10 +64,27 @@ RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/loc
 FROM ubuntu:groovy
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tar /
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates
 RUN cd / && tar -xvf /cardano.tar
 RUN adduser --disabled-password --gecos "cardano" cardano
-#USER cardano
+ENV LD_LIBRARY_PATH=/usr/local/lib
 
-# COPY init.sh /
+#Runtime variables to init.sh
+ENV NODE_NETWORK="mainnet"
+ENV NODE_IP=""
+ENV NODE_PORT="6000"
+ENV NODE_UPNP=false
+ENV NODE_BLOCK_PRODUCER=false
+ENV NODE_UPDATE_TOPOLOGY=true
+ENV NODE_CUSTOM_PEERS="" 
+ENV NODE_HOME="/home/cardano/cnode"
+ENV NODE_CONFIG="$NODE_HOME/config/mainnet-config.json" 
+ENV NODE_TOPOLOGY="$NODE_HOME/config/mainnet-topology.json" 
+ENV NODE_SHELLEY_KES_KEY="$NODE_HOME/keys/pool/kes.skey" 
+ENV NODE_SHELLEY_VRF_KEY="$NODE_HOME/keys/pool/vrf.skey" 
+ENV NODE_SHELLEY_OPERATIONAL_CERTIFICATE="$NODE_HOME/keys/pool/node.cert" 
+
+USER cardano
+
+COPY init.sh /
 # ENTRYPOINT [ "/init.sh" ]
