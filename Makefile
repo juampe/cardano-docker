@@ -1,7 +1,8 @@
 DOCKER_TAG := juampe/cardano
 CARDANO_VERSION := 1.25.1
-UNAME_I := $(shell uname -i)
+UNAME_N := $(shell uname -n)
 all:
-	docker build --build-arg JOBS="-j2" -t $(DOCKER_TAG):$(UNAME_I)-$(CARDANO_VERSION)  .
+	docker build --build-arg JOBS="-j2" -t $(DOCKER_TAG):$(UNAME_N)-$(CARDANO_VERSION)  .
+	docker push $(DOCKER_TAG):$(UNAME_N)-$(CARDANO_VERSION)
 
 
