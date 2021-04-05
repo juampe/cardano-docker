@@ -10,13 +10,6 @@
 </p>
 <!-- markdownlint-enable MD033 -->
 
-# Work in progress, please keep waiting.
-We are working very hard, to bring this container. Our VM's are very busy too.
-Please undestand that this is an "spartan race" building process due to qemu limitations.
-* Phase 1 Build ghc 8.10.2 compatible with state-of-the-art qemu for multi architecture CI/CD
-* Phase 2 Build Cabal 3.2.0.0 free of OFD Locking 
-* Phase 3 Bulid Cardano 1.25.1
-
 # Multiarch cardano docker container 🐳
 Cardano docker is can now be supported as container a in Raspberri Pi or AWS Gravitron container platform.
 It is based in ubuntu focal builder in a documented and formal way (supply chain review).
@@ -41,6 +34,25 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 addr1qys8y92emhj6r5rs7puw6df9ahcvna6gtdm7jlseg8ek7xf46xjc0eelmgtjvmcl9tjgaamz93f4e5nu86dus6grqyrqd28l0r
 
 ## Running a Cardano-Node ⚡
-```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /persistent/path:/cnode juampe/cardano```
+For ARM64 v8
+```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /persistent/path:/home/cardano/cnode juampe/cardano:aarch64-1.25.1```
 
+For AMD64
 
+```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /persistent/path:/home/cardano/cnode juampe/cardano:aarch64-1.25.1```
+
+# A complex building proccess recipe to build cardano.
+We are working very hard, to bring this container. The building process in quemu arm64 is huge (20 times slower).
+Please undestand that this is an "spartan race" building process due to qemu limitations.
+We planned to made in 3 phases:
+* Phase 1 Build Cabal 3.2.0.0 free of OFD Locking
+ * Build with Github action in 12896s
+ * Build with amd64 12VCPU 32GMEM 50GSSD in 7045s
+* Phase 2 Build ghc 8.10.2 compatible with state-of-the-art qemu for multi architecture CI/CD
+ * Unable to use Github action due to service limitations
+ * Build with amd64 12VCPU 32GMEM 50GSSD in 26513s
+* Phase 3 Bulid Cardano 1.25.1
+ * Unable to use Github action due to service limitations
+ * Unable to use qemu with amd64 due to ghc-pkg OFD hLock 
+ * Build for in amd64 12VCPU 32GMEM 50GSSD in 26513.0s
+ * Build for in arm64v8 t4g.medium Gravitron with 2G swapfile
