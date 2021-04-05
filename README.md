@@ -31,13 +31,30 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 🙏If you apprecciate the effort, please consider to support us making an ADA donation or staking ADA into the Nutcracker [NUTCK](https://nutcracker.work/) pool. 
 addr1qys8y92emhj6r5rs7puw6df9ahcvna6gtdm7jlseg8ek7xf46xjc0eelmgtjvmcl9tjgaamz93f4e5nu86dus6grqyrqd28l0r
 
-## Running a Cardano-Node ⚡
-For ARM64 v8
+# Running a Cardano-Node ⚡
+## Environment and defaults
+* NODE_NETWORK="mainnet"
+* NODE_IP=""
+* NODE_PORT="6000"
+* NODE_UPNP=false
+* NODE_BLOCK_PRODUCER=false
+* NODE_UPDATE_TOPOLOGY=true
+* NODE_CUSTOM_PEERS="" 
+* NODE_HOME="/home/cardano/cnode"
+* NODE_CONFIG="$NODE_HOME/config/mainnet-config.json" 
+* NODE_TOPOLOGY="$NODE_HOME/config/mainnet-topology.json" 
+* NODE_SHELLEY_KES_KEY="$NODE_HOME/keys/pool/kes.skey" 
+* NODE_SHELLEY_VRF_KEY="$NODE_HOME/keys/pool/vrf.skey" 
+* NODE_SHELLEY_OPERATIONAL_CERTIFICATE="$NODE_HOME/keys/pool/node.cert" 
+
+## Examples
+
+*For ARM64 v8
 ```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /persistent/path:/home/cardano/cnode juampe/cardano:aarch64-1.25.1```
 
-For AMD64
+*For AMD64
 
-```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /persistent/path:/home/cardano/cnode juampe/cardano:aarch64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /persistent/path:/home/cardano/cnode juampe/cardano:x86_64-1.25.1```
 
 # A complex building proccess recipe to build cardano.
 We are working very hard, to bring this container. The building process in quemu arm64 is huge (20 times slower).
@@ -54,6 +71,7 @@ We planned to made in 3 phases:
  * Unable to use qemu with amd64 due to ghc-pkg OFD hLock 
  * Build for in amd64 12VCPU 32GMEM 50GSSD in 26513.0s
  * Build for in arm64v8 t4g.medium Gravitron with 2G swapfile
+
 # Build your own container. 🏗️
 From a ubuntu:groovy prepare for docker buildx multiarch environment
 At the moment, due to described qemu emulation problems, the container is built in the same architecture.
