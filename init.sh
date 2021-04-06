@@ -21,7 +21,7 @@ then
 	
 fi
 
-if [ "$NODE_UPDATE_TOPOLOGY" =="true" ]
+if [ "$NODE_UPDATE_TOPOLOGY" == "true" ]
 then
 	if [ -n "$NODE_CUSTOM_PEERS" ]
 	then
