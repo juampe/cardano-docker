@@ -41,7 +41,7 @@ ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tar /
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates
 RUN cd / && tar -xvf /cardano.tar
-RUN adduser --disabled-password --gecos "cardano" cardano
+RUN adduser --disabled-password --gecos "cardano" --uid 1001 cardano
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
 #Runtime variables to init.sh
@@ -62,4 +62,4 @@ ENV NODE_SHELLEY_OPERATIONAL_CERTIFICATE="$NODE_HOME/keys/pool/node.cert"
 USER cardano
 
 COPY init.sh /
-ENTRYPOINT [ "/init.sh" ]
+#ENTRYPOINT [ "/init.sh" ]
