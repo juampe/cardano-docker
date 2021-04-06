@@ -5,10 +5,10 @@ ARG TARGETARCH
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG CABAL_VERSION=3.2.0.0
 ARG GHC_VERSION=8.10.2
-ARG NODE_VERSION=1.25.1
+ARG CARDANO_VERSION=1.25.1
 ARG JOBS="-j1"
 
-# export TARGETARCH=arm64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.2.0.0 GHC_VERSION=8.10.2 NODE_VERSION=1.25.1 JOBS="-j2"
+# export TARGETARCH=arm64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.2.0.0 GHC_VERSION=8.10.2 CARDANO_VERSION=1.25.1 JOBS="-j2"
 
 #Libsodium library ada flavour
 RUN git clone https://github.com/input-output-hk/libsodium /libsodium \
@@ -22,7 +22,7 @@ RUN git clone https://github.com/input-output-hk/libsodium /libsodium \
 RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano \
   && cd /cardano \
   && git fetch --all --recurse-submodules --tags \
-  && git checkout tags/${NODE_VERSION} \
+  && git checkout tags/${CARDANO_VERSION} \
   && ~/.cabal/bin/cabal configure -O0 -w ghc-${GHC_VERSION} \
   && /bin/echo -ne  "\npackage cardano-crypto-praos\n  flags: -external-libsodium-vrf\n" >>  cabal.project.local \
   && sed -i ~/.cabal/config -e "s/overwrite-policy:/overwrite-policy: always/g" \
@@ -33,14 +33,13 @@ RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano \
 # Create dist file
 RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/local/bin/cardano-cli \
   && cp $(find /cardano/dist-newstyle/build -type f -name "cardano-node") /usr/local/bin/cardano-node \
-  && tar -cvf /cardano.tar /usr/local/bin/cardano* /usr/local/lib/libsodium*
-
+  && tar -cvzf /cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium*
 #Now the final container with our cardano installed
 FROM ubuntu:groovy
 ARG DEBIAN_FRONTEND="noninteractive"
-COPY --from=builder /cardano.tar /
+COPY --from=builder /cardano.tgz /
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates
-RUN cd / && tar -xvf /cardano.tar
+RUN cd / && tar -xvzf /cardano.tgz
 RUN adduser --disabled-password --gecos "cardano" --uid 1001 cardano
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
