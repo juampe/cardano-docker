@@ -27,9 +27,15 @@ then
 		if [ -z "$NODE_CUSTOM_PEERS" ]
 		then
 			NODE_CUSTOM_PEERS=$INITIAL_PEERS
+
 		else
 			NODE_CUSTOM_PEERS=$INITIAL_PEERS,$NODE_CUSTOM_PEERS
 		fi		
+		if [ -n "$NODE_CORE" ]
+		then
+			NODE_CUSTOM_PEERS=$NODE_CORE:1,$INITIAL_PEERS,$NODE_CUSTOM_PEERS
+		fi
+
 		/bin/echo -n "$NODE_CUSTOM_PEERS" | jq --slurp --raw-input --raw-output 'split(",") | map(split(":")) | map({"addr": .[0],"port": .[1]|tonumber,"valency": .[2]|tonumber}) | {"Producers": .}' > $NODE_TOPOLOGY
 	fi
 fi
@@ -62,9 +68,10 @@ fi
 
 
 #Run cardano and handle SIGINT for gracefuly shutdown
-if [ "$NODE_BLOCK_PRODUCER" == "true" ]
+if [ "$NODE_RUNAS_CORE" == "true" ]
 then
     sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": true/g"
+	-e "s/TraceMempool\": false/TraceMempool\": true/g"
 	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
@@ -76,7 +83,8 @@ then
 	--shelley-vrf-key $NODE_SHELLEY_VRF_KEY \
 	--shelley-operational-certificate $NODE_SHELLEY_OPERATIONAL_CERTIFICATE
 else
-	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": false/g"
+	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": true/g" \ 
+	-e "s/TraceMempool\": true/TraceMempool\": false/g"
 	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
