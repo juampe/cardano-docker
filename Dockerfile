@@ -38,6 +38,7 @@ RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/loc
 FROM ubuntu:groovy
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tgz /
+COPY scripts/ /scripts/
 RUN apt-get -y update && apt-get - upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase
 RUN cd / && tar -xvzf /cardano.tgz
 RUN adduser --disabled-password --gecos "cardano" --uid 1001 cardano
@@ -49,7 +50,7 @@ ENV NODE_IP=""
 ENV NODE_LISTEN="0.0.0.0"
 ENV NODE_PORT="6000"
 ENV NODE_UPNP=false
-ENV NODE_BLOCK_PRODUCER=false
+ENV NODE_RUNAS_CORE=false
 ENV NODE_UPDATE_TOPOLOGY=true
 ENV NODE_CUSTOM_PEERS="" 
 ENV NODE_HOME="/home/cardano/cnode"
