@@ -50,7 +50,7 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_PORT|"6000"|This is the port and defaults the port used by Guild|
 |NODE_UPNP|false|If true the container will use upnpc to map the port in your router|
 |NODE_BLOCK_PRODUCER|false|By default run only as relay|
-|NODE_UPDATE_TOPOLOGY|true|Not funtional in this release|
+|NODE_UPDATE_TOPOLOGY|true|Force update topology file|
 |NODE_CUSTOM_PEERS|""|You can define peers using this format host1:port1:valency1,host2:port2:valency2,...|
 |NODE_HOME|"/home/cardano/cnode"|The default home, useful to create a permanent docker volume|
 |NODE_CONFIG|"$NODE_HOME/config/mainnet-config.json"|If not exist init.sh try to download a fresh copy from IOHK|
@@ -58,6 +58,7 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_SHELLEY_KES_KEY|"$NODE_HOME/keys/pool/kes.skey"|Must be generated previously to be producer node|
 |NODE_SHELLEY_VRF_KEY|"$NODE_HOME/keys/pool/vrf.skey"|Must be generated previously to be producer node| 
 |NODE_SHELLEY_OPERATIONAL_CERTIFICATE|"$NODE_HOME/keys/pool/node.cert"|Must be generated previously to be producer node|
+|NODE_SCRIPTS|false|Install aditional and useful operator scripts and tools|
 
 ## Examples. 🗜️
 

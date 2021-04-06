@@ -5,7 +5,7 @@ ARG CARDANO_VERSION=1.25.1
 ARG JOBS="-j1"
 
 COPY repo/cardano-${TARGETARCH}-${CARDANO_VERSION}.tgz /cardano.tgz
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute
 RUN cd / && tar -xvzf /cardano.tgz && rm /cardano.tgz
 RUN adduser --disabled-password --gecos "cardano" --uid 1001 cardano
 ENV LD_LIBRARY_PATH=/usr/local/lib
@@ -24,6 +24,7 @@ ENV NODE_TOPOLOGY="$NODE_HOME/config/mainnet-topology.json"
 ENV NODE_SHELLEY_KES_KEY="$NODE_HOME/keys/pool/kes.skey" 
 ENV NODE_SHELLEY_VRF_KEY="$NODE_HOME/keys/pool/vrf.skey" 
 ENV NODE_SHELLEY_OPERATIONAL_CERTIFICATE="$NODE_HOME/keys/pool/node.cert" 
+ENV NODE_SCRIPTS=false
 
 USER cardano
 
