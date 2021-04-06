@@ -8,5 +8,6 @@ all:
 
 cache:
 	docker build --build-arg JOBS="-j2" --build-arg TARGETARCH=$(ARCH) -t $(DOCKER_TAG):$(ARCH)-$(CARDANO_VERSION) -f Dockerfile.cache .
+	docker push $(DOCKER_TAG):$(ARCH)-$(CARDANO_VERSION)
 
 
