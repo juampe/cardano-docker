@@ -61,10 +61,10 @@ then
 fi
 
 
-#Run cardano
+#Run cardano and handle SIGINT for gracefuly shutdown
 if [ "$NODE_BLOCK_PRODUCER" == "true" ]
 then
-	/usr/local/bin/cardano-node run \
+	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
   	--config $NODE_CONFIG  \
@@ -75,7 +75,7 @@ then
 	--shelley-vrf-key $NODE_SHELLEY_VRF_KEY \
 	--shelley-operational-certificate $NODE_SHELLEY_OPERATIONAL_CERTIFICATE
 else
-	/usr/local/bin/cardano-node run \
+	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
   	--config $NODE_CONFIG  \
