@@ -46,6 +46,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib
 #Runtime variables to init.sh
 ENV NODE_NETWORK="mainnet"
 ENV NODE_IP=""
+ENV NODE_LISTEN="0.0.0.0"
 ENV NODE_PORT="6000"
 ENV NODE_UPNP=false
 ENV NODE_BLOCK_PRODUCER=false
@@ -62,4 +63,5 @@ ENV NODE_SCRIPTS=false
 USER cardano
 
 COPY init.sh /
+STOPSIGNAL SIGINT
 ENTRYPOINT [ "/init.sh" ]
