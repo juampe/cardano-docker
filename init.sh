@@ -32,7 +32,7 @@ then
 		else
 			NODE_CUSTOM_PEERS=$INITIAL_PEERS,$NODE_CUSTOM_PEERS
 		fi		
-		/bin/echo -n "$NODE_CUSTOM_PEERS" | jq --slurp --raw-input --raw-output 'split(",") | map(split(":")) | map({"addr": .[0],"port": .[1],"valency": .[2]}) | {"Producers": .}' > $NODE_TOPOLOGY
+		/bin/echo -n "$NODE_CUSTOM_PEERS" | jq --slurp --raw-input --raw-output 'split(",") | map(split(":")) | map({"addr": .[0],"port": .[1],"valency": .[2]|tonumber}) | {"Producers": .}' > $NODE_TOPOLOGY
 	fi
 fi
 
