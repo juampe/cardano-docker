@@ -28,4 +28,4 @@ ENV NODE_SHELLEY_OPERATIONAL_CERTIFICATE="$NODE_HOME/keys/pool/node.cert"
 USER cardano
 
 COPY init.sh /
-#ENTRYPOINT [ "/init.sh" ]
+ENTRYPOINT [ "/init.sh" ]
