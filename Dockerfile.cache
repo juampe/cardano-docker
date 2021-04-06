@@ -30,4 +30,5 @@ ENV NODE_SCRIPTS=false
 USER cardano
 
 COPY init.sh /
+STOPSIGNAL SIGINT
 ENTRYPOINT [ "/init.sh" ]
