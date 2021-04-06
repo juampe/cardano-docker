@@ -69,7 +69,7 @@ then
   	--socket-path $NODE_HOME/sockets/node.socket \
   	--config $NODE_CONFIG  \
   	--topology $NODE_TOPOLOGY \
-  	--host-addr $NODE_IP \
+  	--host-addr $NODE_LISTEN \
   	--port $NODE_PORT \
 	--shelley-kes-key $NODE_SHELLEY_KES_KEY \
 	--shelley-vrf-key $NODE_SHELLEY_VRF_KEY \
@@ -80,6 +80,6 @@ else
   	--socket-path $NODE_HOME/sockets/node.socket \
   	--config $NODE_CONFIG  \
   	--topology $NODE_TOPOLOGY \
-  	--host-addr $NODE_IP \
+  	--host-addr $NODE_LISTEN \
   	--port $NODE_PORT
 fi
