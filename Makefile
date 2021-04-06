@@ -1,6 +1,5 @@
 DOCKER_TAG := juampe/cardano
 CARDANO_VERSION := 1.25.1
-UNAME_N := $(shell uname -m)
 ARCH:= $(shell docker version -f "{{.Server.Arch}}")
 all:
 	docker build --build-arg JOBS="-j2" --build-arg TARGETARCH=`docker version -f "{{.Server.Arch}}"` -t $(DOCKER_TAG):$(ARCH)-$(CARDANO_VERSION)  .
