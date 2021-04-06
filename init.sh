@@ -76,7 +76,7 @@ then
 	--shelley-vrf-key $NODE_SHELLEY_VRF_KEY \
 	--shelley-operational-certificate $NODE_SHELLEY_OPERATIONAL_CERTIFICATE
 else
-	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": false/g"
+	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": false/g"
 	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
