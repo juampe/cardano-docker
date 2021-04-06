@@ -17,8 +17,6 @@ then
 	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-topology.json
 	ls -al $NODE_HOME/config/*
 	echo "============================="
-
-	
 fi
 
 if [ "$NODE_UPDATE_TOPOLOGY" == "true" ]
@@ -47,6 +45,21 @@ if [ "$NODE_UPNP" == "true" ]
 then
 	EXTIP=$(/usr/bin/upnpc -e "Cardano $VERSION" -a $NODE_IP $NODE_PORT $NODE_PORT tcp | grep ExternalIPAddress|awk '{print $3}')
 fi
+
+#Some scripts and tools
+if [ "$NODE_SCRIPTS" == "true" ]
+then
+	cd /home/cardano/cnode/scripts
+	if [ ! -e "gLiveView.sh" ]
+	then
+		curl -s -o gLiveView.sh https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/gLiveView.sh
+		curl -s -o env https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/env
+		sed -i env  -e "s/\#CONFIG=\"\${CNODE_HOME}\/files\/config.json\"/CONFIG=\"\${NODE_HOME}\/config\/mainnet-config.json\"/g" \
+    	-e "s/\#SOCKET=\"\${CNODE_HOME}\/sockets\/node0.socket\"/SOCKET=\"\${NODE_HOME}\/sockets\/node.socket\"/g"
+		chmod 755 gLiveView.sh
+	fi
+fi
+
 
 #Run cardano
 if [ "$NODE_BLOCK_PRODUCER" == "true" ]

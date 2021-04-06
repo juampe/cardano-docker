@@ -38,7 +38,7 @@ RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/loc
 FROM ubuntu:groovy
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tgz /
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute
 RUN cd / && tar -xvzf /cardano.tgz
 RUN adduser --disabled-password --gecos "cardano" --uid 1001 cardano
 ENV LD_LIBRARY_PATH=/usr/local/lib
@@ -57,6 +57,7 @@ ENV NODE_TOPOLOGY="$NODE_HOME/config/mainnet-topology.json"
 ENV NODE_SHELLEY_KES_KEY="$NODE_HOME/keys/pool/kes.skey" 
 ENV NODE_SHELLEY_VRF_KEY="$NODE_HOME/keys/pool/vrf.skey" 
 ENV NODE_SHELLEY_OPERATIONAL_CERTIFICATE="$NODE_HOME/keys/pool/node.cert" 
+ENV NODE_SCRIPTS=false
 
 USER cardano
 
