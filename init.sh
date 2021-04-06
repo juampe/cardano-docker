@@ -64,7 +64,7 @@ fi
 #Run cardano and handle SIGINT for gracefuly shutdown
 if [ "$NODE_BLOCK_PRODUCER" == "true" ]
 then
-    sed -i ${NODE_CONFIG}-config.json -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": true/g"
+    sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": true/g"
 	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
@@ -76,7 +76,7 @@ then
 	--shelley-vrf-key $NODE_SHELLEY_VRF_KEY \
 	--shelley-operational-certificate $NODE_SHELLEY_OPERATIONAL_CERTIFICATE
 else
-	sed -i ${NODE_CONFIG}-config.json -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": false/g"
+	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": false/g"
 	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
