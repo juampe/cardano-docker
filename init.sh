@@ -66,8 +66,8 @@ then
 	cd $NODE_HOME/scripts/
 	if [ ! -e "gLiveView.sh" ]
 	then
-		curl -s -o gLiveView.sh https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/gLiveView.sh
-		curl -s -o env https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/env
+		curl -s -o gLiveView.sh https://raw.githubusercontent.com/cardano-community/guild-operators/$(VERSION)/scripts/cnode-helper-scripts/gLiveView.sh
+		curl -s -o env https://raw.githubusercontent.com/cardano-community/guild-operators/$(VERSION)/scripts/cnode-helper-scripts/env
 		sed -i env  -e "s/\#CONFIG=\"\${CNODE_HOME}\/files\/config.json\"/CONFIG=\"\${NODE_HOME}\/config\/mainnet-config.json\"/g" \
     	-e "s/\#SOCKET=\"\${CNODE_HOME}\/sockets\/node0.socket\"/SOCKET=\"\${NODE_HOME}\/sockets\/node.socket\"/g"
 		chmod 755 gLiveView.sh
@@ -82,7 +82,7 @@ function peer_push(){
 		sleep 60
 		echo ">> Topology push to api.clio.one"
 		/scripts/topologyPush.sh
-		sleep $((60*60))
+		sleep $((60*59))
 	done
 }
 

@@ -68,11 +68,11 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 
 * For relay in ARM64 v8
 
-```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1,relays-new.cardano-mainnet.iohk.io:3001:8" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1,relays-new.cardano-mainnet.iohk.io:3001:2"  -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.25.1```
 
 * For relay in AMD64
 
-```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1,relays-new.cardano-mainnet.iohk.io:3001:8" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1,relays-new.cardano-mainnet.iohk.io:3001:2" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.25.1```
 
 * For core in ARM64 v8
 
