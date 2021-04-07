@@ -42,24 +42,24 @@ RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-r
 RUN cd / && tar -xvzf /cardano.tgz
 RUN adduser --disabled-password --gecos "cardano" --uid 1001 cardano
 COPY scripts/ /scripts/
-ENV LD_LIBRARY_PATH=/usr/local/lib
 
 #Runtime variables to init.sh
-ENV NODE_NETWORK="mainnet"
-ENV NODE_IP=""
-ENV NODE_LISTEN="0.0.0.0"
-ENV NODE_PORT="6000"
-ENV NODE_UPNP=false
-ENV NODE_RUNAS_CORE=false
-ENV NODE_UPDATE_TOPOLOGY=true
-ENV NODE_CUSTOM_PEERS="" 
-ENV NODE_HOME="/home/cardano/cnode"
-ENV NODE_CONFIG="$NODE_HOME/config/mainnet-config.json" 
-ENV NODE_TOPOLOGY="$NODE_HOME/config/mainnet-topology.json" 
-ENV NODE_SHELLEY_KES_KEY="$NODE_HOME/keys/pool/kes.skey" 
-ENV NODE_SHELLEY_VRF_KEY="$NODE_HOME/keys/pool/vrf.skey" 
-ENV NODE_SHELLEY_OPERATIONAL_CERTIFICATE="$NODE_HOME/keys/pool/node.cert" 
-ENV NODE_SCRIPTS=false
+ENV LD_LIBRARY_PATH=/usr/local/lib \
+  NODE_NETWORK="mainnet" \
+  NODE_IP="" \
+  NODE_LISTEN="0.0.0.0" \
+  NODE_PORT="6000" \
+  NODE_UPNP=false \
+  NODE_RUNAS_CORE=false \
+  NODE_UPDATE_TOPOLOGY=true \
+  NODE_CUSTOM_PEERS="" \
+  NODE_HOME="/home/cardano/cnode" \
+  NODE_CONFIG="$NODE_HOME/config/mainnet-config.json" \
+  NODE_TOPOLOGY="$NODE_HOME/config/mainnet-topology.json" \
+  NODE_SHELLEY_KES_KEY="$NODE_HOME/keys/pool/kes.skey" \
+  NODE_SHELLEY_VRF_KEY="$NODE_HOME/keys/pool/vrf.skey" \
+  NODE_SHELLEY_OPERATIONAL_CERTIFICATE="$NODE_HOME/keys/pool/node.cert" \
+  NODE_SCRIPTS=false
 
 USER cardano
 
