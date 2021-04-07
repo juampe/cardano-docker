@@ -38,7 +38,7 @@ RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/loc
 FROM ubuntu:groovy
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tgz /
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase
+RUN apt-get -y update && apt-get - upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase
 RUN cd / && tar -xvzf /cardano.tgz
 RUN adduser --disabled-password --gecos "cardano" --uid 1001 cardano
 COPY scripts/ /scripts/
@@ -51,15 +51,19 @@ ENV LD_LIBRARY_PATH=/usr/local/lib \
   NODE_PORT="6000" \
   NODE_UPNP=false \
   NODE_RUNAS_CORE=false \
-  NODE_UPDATE_TOPOLOGY=true \
-  NODE_CUSTOM_PEERS="" \
   NODE_HOME="/home/cardano/cnode" \
-  NODE_CONFIG="$NODE_HOME/config/mainnet-config.json" \
-  NODE_TOPOLOGY="$NODE_HOME/config/mainnet-topology.json" \
-  NODE_SHELLEY_KES_KEY="$NODE_HOME/keys/pool/kes.skey" \
-  NODE_SHELLEY_VRF_KEY="$NODE_HOME/keys/pool/vrf.skey" \
-  NODE_SHELLEY_OPERATIONAL_CERTIFICATE="$NODE_HOME/keys/pool/node.cert" \
-  NODE_SCRIPTS=false
+  NODE_CONFIG="/home/cardano/cnode/config/mainnet-config.json" \
+  NODE_TOPOLOGY="/home/cardano/cnode/config/mainnet-topology.json" \
+  NODE_SHELLEY_KES_KEY="/home/cardano/cnode/keys/pool/kes.skey" \
+  NODE_SHELLEY_VRF_KEY="/home/cardano/cnode/keys/pool/vrf.skey" \
+  NODE_SHELLEY_OPERATIONAL_CERTIFICATE="/home/cardano/cnode/keys/pool/node.cert" \
+  NODE_SCRIPTS=false \
+  NODE_CUSTOM_PEERS="" \
+  NODE_UPDATE_TOPOLOGY=true \
+  NODE_TOPOLOGY_PUSH=false \
+  NODE_TOPOLOGY_PULL=false \
+  NODE_TOPOLOGY_PULL_MAX=10 \
+  NODE_PROM_LISTEN="" 
 
 USER cardano
 

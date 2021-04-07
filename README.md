@@ -61,7 +61,9 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_SHELLEY_OPERATIONAL_CERTIFICATE|"$NODE_HOME/keys/pool/node.cert"|Must be generated previously to be producer node|
 |NODE_SCRIPTS|false|Install aditional and useful operator scripts and tools|
 |NODE_TOPOLOGY_PUSH|false|On relay push node information to api.clio.one in order to pull peers|
-|NODE_TOPOLOGY_PULL|false|On relay start pull peer information from api.clio.one, $NODE_CORE defined recomended. IMPORTANT to have pull rights the node need at least 4 hours of pushing status|
+|NODE_TOPOLOGY_PULL|false|On relay start pull peer information from api.clio.one, $NODE_CORE defined recomended. IMPORTANT to have pull 
+rights the node need at least 4 hours of pushing status|
+|NODE_PROM_LISTEN|""|Listen address for prometheus monitor|
 
 
 ## Examples. 🗜️
