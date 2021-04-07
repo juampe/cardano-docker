@@ -49,27 +49,38 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_IP|""|The ip assigned is the one with the default route, but it can be assigned|
 |NODE_PORT|"6000"|This is the port and defaults the port used by Guild|
 |NODE_UPNP|false|If true the container will use upnpc to map the port in your router|
-|NODE_BLOCK_PRODUCER|false|By default run only as relay|
+|NODE_CORE|""|For relays, the IP:PORT of the core/producer node|
+|NODE_RUNAS_CORE|false|By default run only as relay|
 |NODE_UPDATE_TOPOLOGY|true|Force update topology file|
 |NODE_CUSTOM_PEERS|""|You can define peers using this format host1:port1:valency1,host2:port2:valency2,...|
 |NODE_HOME|"/home/cardano/cnode"|The default home, useful to create a permanent docker volume|
 |NODE_CONFIG|"$NODE_HOME/config/mainnet-config.json"|If not exist init.sh try to download a fresh copy from IOHK|
 |NODE_TOPOLOGY|"$NODE_HOME/config/mainnet-topology.json"|If not exist init.sh try to download a fresh copy from IOHK|
-|NODE_SHELLEY_KES_KEY|"$NODE_HOME/keys/pool/kes.skey"|Must be generated previously to be producer node|
+|NODE_SHELLEY_KES_KEY|"$NODE_HOME/keys/pool/kes.skey"|Must be generated and updated previously to be producer node|
 |NODE_SHELLEY_VRF_KEY|"$NODE_HOME/keys/pool/vrf.skey"|Must be generated previously to be producer node| 
 |NODE_SHELLEY_OPERATIONAL_CERTIFICATE|"$NODE_HOME/keys/pool/node.cert"|Must be generated previously to be producer node|
 |NODE_SCRIPTS|false|Install aditional and useful operator scripts and tools|
+|NODE_TOPOLOGY_PUSH|false|On relay push node information to api.clio.one in order to pull peers|
+|NODE_TOPOLOGY_PULL|false|On relay start pull peer information from api.clio.one, $NODE_CORE defined recomended. IMPORTANT to have pull rights the node need at least 4 hours of pushing status|
+
 
 ## Examples. 🗜️
 
-* For ARM64 v8
+* For relay in ARM64 v8
 
-```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode -e "NODE_CUSTOM_PEERS=core1:6000:2" juampe/cardano:aarch64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1,relays-new.cardano-mainnet.iohk.io:3001:8" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.25.1```
 
-* For AMD64
+* For relay in AMD64
 
-```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode -e "NODE_CUSTOM_PEERS=core1:6000:2" juampe/cardano:amd64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1,relays-new.cardano-mainnet.iohk.io:3001:8" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.25.1```
 
+* For core in ARM64 v8
+
+```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.25.1```
+
+* For core in AMD64
+
+```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.25.1```
 
 # A complex building proccess recipe to build cardano.🔥
 We are working very hard, to bring this container. The building process in quemu arm64 is huge (20 times slower).

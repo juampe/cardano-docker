@@ -5,6 +5,7 @@ ARG CARDANO_VERSION=1.25.1
 ARG JOBS="-j1"
 
 COPY repo/cardano-${TARGETARCH}-${CARDANO_VERSION}.tgz /cardano.tgz
+COPY scripts/ /scripts/
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase
 RUN cd / && tar -xvzf /cardano.tgz && rm /cardano.tgz
 RUN adduser --disabled-password --gecos "cardano" --uid 1001 cardano
@@ -16,7 +17,7 @@ ENV NODE_IP=""
 ENV NODE_LISTEN="0.0.0.0"
 ENV NODE_PORT="6000"
 ENV NODE_UPNP=false
-ENV NODE_BLOCK_PRODUCER=false
+ENV NODE_RUNAS_CORE=false
 ENV NODE_UPDATE_TOPOLOGY=true
 ENV NODE_CUSTOM_PEERS="" 
 ENV NODE_HOME="/home/cardano/cnode"
@@ -32,3 +33,4 @@ USER cardano
 COPY init.sh /
 STOPSIGNAL SIGINT
 ENTRYPOINT [ "/init.sh" ]
+
