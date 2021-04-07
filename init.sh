@@ -55,7 +55,7 @@ fi
 #Some scripts and tools
 if [ "$NODE_SCRIPTS" == "true" ]
 then
-	cd /home/cardano/cnode/scripts
+	cd $NODE_HOME/scripts/
 	if [ ! -e "gLiveView.sh" ]
 	then
 		curl -s -o gLiveView.sh https://raw.githubusercontent.com/cardano-community/guild-operators/master/scripts/cnode-helper-scripts/gLiveView.sh
@@ -64,6 +64,28 @@ then
     	-e "s/\#SOCKET=\"\${CNODE_HOME}\/sockets\/node0.socket\"/SOCKET=\"\${NODE_HOME}\/sockets\/node.socket\"/g"
 		chmod 755 gLiveView.sh
 	fi
+	cp -a /scripts/* .
+fi
+
+function peer_push(){
+	while true
+	do	
+		sleep 60
+		echo ">> Topology push to api.clio.one"
+		/scripts/topologyPush.sh
+		sleep $((60*60))
+	done
+}
+
+if [ "$NODE_TOPOLOGY_PUSH" == "true" ]
+then
+	peer_push &
+fi
+
+if [ "$NODE_TOPOLOGY_PULL" == "true" ]
+then
+	echo ">> Topology pull from api.clio.one. Custom peers:[$NODE_CUSTOM_PEERS]"
+	/scripts/topologyPull.sh "$NODE_CUSTOM_PEERS"
 fi
 
 
@@ -71,7 +93,7 @@ fi
 if [ "$NODE_RUNAS_CORE" == "true" ]
 then
     sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": true/g"
-	-e "s/TraceMempool\": false/TraceMempool\": true/g"
+	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": false/TraceMempool\": true/g"
 	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
@@ -83,8 +105,8 @@ then
 	--shelley-vrf-key $NODE_SHELLEY_VRF_KEY \
 	--shelley-operational-certificate $NODE_SHELLEY_OPERATIONAL_CERTIFICATE
 else
-	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": true/g" \ 
-	-e "s/TraceMempool\": true/TraceMempool\": false/g"
+	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": true/g"
+	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": true/TraceMempool\": false/g"
 	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
