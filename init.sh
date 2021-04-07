@@ -1,6 +1,4 @@
 #!/bin/bash
-
-
 VERSION=$(/usr/local/bin/cardano-node --version|grep cardano-node|awk '{print $2}')
 
 #CONFIGURATION
@@ -44,7 +42,7 @@ then
 	if [ "$NODE_TOPOLOGY_PULL" == "true" ]
 	then
 		echo ">> Topology pull from api.clio.one. Custom peers:[$NODE_CUSTOM_PEERS]"
-		/scripts/topologyPull.sh "$NODE_CUSTOM_PEERS"
+		/scripts/topologyPull.sh "$NODE_CUSTOM_PEERS" "$NODE_TOPOLOGY_PULL_MAX"
 	fi
 fi
 
@@ -75,14 +73,19 @@ then
 	cp -a /scripts/* .
 fi
 
+if [ -n "$NODE_PROM_LISTEN"  ]
+then
+	sed -i $NODE_CONFIG -e "s/127.0.0.1/$NODE_PROM_LISTEN/g"  
+fi
+
 #Node peer push
 function peer_push(){
 	while true
 	do	
-		sleep 60
+		sleep $((60*30))
 		echo ">> Topology push to api.clio.one"
 		/scripts/topologyPush.sh
-		sleep $((60*59))
+		sleep $((60*30))
 	done
 }
 
