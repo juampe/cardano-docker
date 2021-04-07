@@ -38,6 +38,14 @@ then
 
 		/bin/echo -n "$NODE_CUSTOM_PEERS" | jq --slurp --raw-input --raw-output 'split(",") | map(split(":")) | map({"addr": .[0],"port": .[1]|tonumber,"valency": .[2]|tonumber}) | {"Producers": .}' > $NODE_TOPOLOGY
 	fi
+	
+
+
+	if [ "$NODE_TOPOLOGY_PULL" == "true" ]
+	then
+		echo ">> Topology pull from api.clio.one. Custom peers:[$NODE_CUSTOM_PEERS]"
+		/scripts/topologyPull.sh "$NODE_CUSTOM_PEERS"
+	fi
 fi
 
 if [ "$NODE_IP" == "" ]
@@ -67,6 +75,7 @@ then
 	cp -a /scripts/* .
 fi
 
+#Node peer push
 function peer_push(){
 	while true
 	do	
@@ -81,13 +90,6 @@ if [ "$NODE_TOPOLOGY_PUSH" == "true" ]
 then
 	peer_push &
 fi
-
-if [ "$NODE_TOPOLOGY_PULL" == "true" ]
-then
-	echo ">> Topology pull from api.clio.one. Custom peers:[$NODE_CUSTOM_PEERS]"
-	/scripts/topologyPull.sh "$NODE_CUSTOM_PEERS"
-fi
-
 
 #Run cardano and handle SIGINT for gracefuly shutdown
 if [ "$NODE_RUNAS_CORE" == "true" ]
