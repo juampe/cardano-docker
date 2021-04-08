@@ -31,7 +31,7 @@ then
 	if [ -n "$NODE_CORE" ]
 	then
 		echo ">> Core peers $NODE_CORE"
-		NODE_PEERS=$NODE_CORE:1,$NODE_PEERS
+		NODE_PEERS=$NODE_CORE:2,$NODE_PEERS
 	fi
 
 	/bin/echo -n "$NODE_PEERS" | jq --slurp --raw-input --raw-output 'split(",") | map(split(":")) | map({"addr": .[0],"port": .[1]|tonumber,"valency": .[2]|tonumber}) | {"Producers": .}' > $NODE_TOPOLOGY
@@ -40,15 +40,15 @@ fi
 echo ">> Resolved peers $NODE_PEERS"
 	
 
-
 if [ "$NODE_TOPOLOGY_PULL" == "true" ]
 then
-		echo ">> Topology pull from api.clio.one. Custom peers:[$NODE_PEERS]"
-		/scripts/topologyPull.sh "$NODE_PEERS" "$NODE_TOPOLOGY_PULL_MAX"
+	echo ">> Topology pull from api.clio.one. Custom peers:[$NODE_PEERS]"
+	/scripts/topologyPull.sh "$NODE_PEERS" "$NODE_TOPOLOGY_PULL_MAX"
 fi
 
 if [ "$NODE_IP" == "" ]
 then
+	echo ">> Set IP to $NODE_IP"
 	IF=$(/sbin/ip route |grep ^default|awk '{print $5}')
 	NODE_IP=$(/sbin/ip -4 addr show dev $IF scope global|grep inet|awk '{print $2}'|awk -F'/' '{print $1}')
 fi
@@ -56,18 +56,21 @@ fi
 #UPNP behind a upnp NAT
 if [ "$NODE_UPNP" == "true" ]
 then
+	echo ">> Set UPnP $NODE_PORT to $NODE_IP $NODE_PORT"
 	EXTIP=$(/usr/bin/upnpc -e "Cardano $VERSION" -a $NODE_IP $NODE_PORT $NODE_PORT tcp | grep ExternalIPAddress|awk '{print $3}')
 fi
 
-#Some scripts and tools
+#Some scripts and tools to home
 if [ "$NODE_SCRIPTS" == "true" ]
 then
+	echo ">> Set scripts to $NODE_HOME/scripts/"
 	cd $NODE_HOME/scripts/
 	cp -a /scripts/* .
 fi
 
 if [ -n "$NODE_PROM_LISTEN"  ]
 then
+	echo ">> Set prometheus listen address to $NODE_PROM_LISTEN"
 	sed -i $NODE_CONFIG -e "s/127.0.0.1/$NODE_PROM_LISTEN/g"  
 fi
 
@@ -89,16 +92,18 @@ fi
 
 if [ "$NODE_TRACE_MEMPOOL" == "true" ]
 then
-	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": false/TraceMempool\": true/g"
+	echo ">> Set TraceMempool in $NODE_CONFIG"
+	sed -i $NODE_CONFIG -e "s/TraceMempool\": false/TraceMempool\": true/g"
 else
-	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": true/TraceMempool\": false/g"
+	sed -i $NODE_CONFIG -e "s/TraceMempool\": true/TraceMempool\": false/g"
 fi
 
 if [ "$NODE_TRACE_FETCH_DECISIONS" == "true" ]
 then
-	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": true/g"
+	echo ">> Set TraceBlockFetchDecisions in $NODE_CONFIG"
+	sed -i $NODE_CONFIG -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": true/g"
 else
-	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": false/g"
+	sed -i $NODE_CONFIG -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": false/g"
 fi
 	
 #Run cardano and handle SIGINT for gracefuly shutdown
