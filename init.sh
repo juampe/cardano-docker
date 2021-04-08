@@ -63,17 +63,6 @@ fi
 if [ "$NODE_SCRIPTS" == "true" ]
 then
 	cd $NODE_HOME/scripts/
-	if [ ! -e "gLiveView.sh" ]
-	then
-		cd $NODE_HOME/scripts
-		GLBRANCH="node$VERSION"
-		GLURL="https://raw.githubusercontent.com/cardano-community/guild-operators/$GLBRANCH/scripts/cnode-helper-scripts"
-		curl -s -o gLiveView.sh $GLURL/gLiveView.sh
-		curl -s -o env $GLURL/env
-		chmod 755 gLiveView.sh
-		sed -i env  -e "s/\#CONFIG=\"\${CNODE_HOME}\/files\/config.json\"/CONFIG=\"\${NODE_HOME}\/config\/mainnet-config.json\"/g" \
-    	-e "s/\#SOCKET=\"\${CNODE_HOME}\/sockets\/node0.socket\"/SOCKET=\"\${NODE_HOME}\/sockets\/node.socket\"/g"
-	fi
 	cp -a /scripts/* .
 fi
 
@@ -98,11 +87,23 @@ then
 	peer_push &
 fi
 
+if [ "$NODE_TRACE_MEMPOOL" == "true" ]
+then
+	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": false/TraceMempool\": true/g"
+else
+	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": true/TraceMempool\": false/g"
+fi
+
+if [ "$NODE_TRACE_FETCH_DECISIONS" == "true" ]
+then
+	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": true/g"
+else
+	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": false/g"
+fi
+	
 #Run cardano and handle SIGINT for gracefuly shutdown
 if [ "$NODE_RUNAS_CORE" == "true" ]
 then
-    sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": false/TraceBlockFetchDecisions\": true/g"
-	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": false/TraceMempool\": true/g"
 	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
@@ -114,9 +115,6 @@ then
 	--shelley-vrf-key $NODE_SHELLEY_VRF_KEY \
 	--shelley-operational-certificate $NODE_SHELLEY_OPERATIONAL_CERTIFICATE
 else
-	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": true/g"
-#	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": true/TraceMempool\": false/g"
-	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": false/TraceMempool\": true/g"
 	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \

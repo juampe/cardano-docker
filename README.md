@@ -63,6 +63,7 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_TOPOLOGY_PUSH|false|On relay push node information to api.clio.one in order to pull peers|
 |NODE_TOPOLOGY_PULL|false|On relay start pull peer information from api.clio.one, $NODE_CORE defined recomended. IMPORTANT to have pull 
 rights the node need at least 4 hours of pushing status|
+|NODE_TOPOLOGY_PULL_MAX|10|Number of peers to pull into topology file|
 |NODE_PROM_LISTEN|""|Listen address for prometheus monitor|
 
 
@@ -70,11 +71,11 @@ rights the node need at least 4 hours of pushing status|
 
 * For relay in ARM64 v8
 
-```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1,relays-new.cardano-mainnet.iohk.io:3001:2"  -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.25.1```
 
 * For relay in AMD64
 
-```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1,relays-new.cardano-mainnet.iohk.io:3001:2" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:amd64-1.25.1```
 
 * For core in ARM64 v8
 
@@ -82,7 +83,7 @@ rights the node need at least 4 hours of pushing status|
 
 * For core in AMD64
 
-```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:amd64-1.25.1```
 
 # A complex building proccess recipe to build cardano.🔥
 We are working very hard, to bring this container. The building process in quemu arm64 is huge (20 times slower).
