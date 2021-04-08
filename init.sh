@@ -19,31 +19,32 @@ fi
 
 if [ "$NODE_UPDATE_TOPOLOGY" == "true" ]
 then
+	#INITIAL_PEER=$(cat $NODE_TOPOLOGY |jq -r '.Producers[0]|[.addr,.port,.valency]|join(":")')
+	NODE_PEERS="relays-new.cardano-mainnet.iohk.io:3001:2"
+
 	if [ -n "$NODE_CUSTOM_PEERS" ]
 	then
-		INITIAL_PEERS=$(cat $NODE_TOPOLOGY |jq -r '.Producers[0]|[.addr,.port,.valency]|join(":")')
-		if [ -z "$NODE_CUSTOM_PEERS" ]
-		then
-			NODE_CUSTOM_PEERS=$INITIAL_PEERS
-
-		else
-			NODE_CUSTOM_PEERS=$INITIAL_PEERS,$NODE_CUSTOM_PEERS
-		fi		
-		if [ -n "$NODE_CORE" ]
-		then
-			NODE_CUSTOM_PEERS=$NODE_CORE:1,$INITIAL_PEERS,$NODE_CUSTOM_PEERS
-		fi
-
-		/bin/echo -n "$NODE_CUSTOM_PEERS" | jq --slurp --raw-input --raw-output 'split(",") | map(split(":")) | map({"addr": .[0],"port": .[1]|tonumber,"valency": .[2]|tonumber}) | {"Producers": .}' > $NODE_TOPOLOGY
+		echo ">> Custom peers $NODE_CUSTOM_PEERS"
+		NODE_PEERS=$NODE_PEERS,$NODE_CUSTOM_PEERS
 	fi
+
+	if [ -n "$NODE_CORE" ]
+	then
+		echo ">> Core peers $NODE_CORE"
+		NODE_PEERS=$NODE_CORE:1,$NODE_PEERS
+	fi
+
+	/bin/echo -n "$NODE_PEERS" | jq --slurp --raw-input --raw-output 'split(",") | map(split(":")) | map({"addr": .[0],"port": .[1]|tonumber,"valency": .[2]|tonumber}) | {"Producers": .}' > $NODE_TOPOLOGY
+fi
+
+echo ">> Resolved peers $NODE_PEERS"
 	
 
 
-	if [ "$NODE_TOPOLOGY_PULL" == "true" ]
-	then
-		echo ">> Topology pull from api.clio.one. Custom peers:[$NODE_CUSTOM_PEERS]"
-		/scripts/topologyPull.sh "$NODE_CUSTOM_PEERS" "$NODE_TOPOLOGY_PULL_MAX"
-	fi
+if [ "$NODE_TOPOLOGY_PULL" == "true" ]
+then
+		echo ">> Topology pull from api.clio.one. Custom peers:[$NODE_PEERS]"
+		/scripts/topologyPull.sh "$NODE_PEERS" "$NODE_TOPOLOGY_PULL_MAX"
 fi
 
 if [ "$NODE_IP" == "" ]
@@ -64,11 +65,14 @@ then
 	cd $NODE_HOME/scripts/
 	if [ ! -e "gLiveView.sh" ]
 	then
-		curl -s -o gLiveView.sh https://raw.githubusercontent.com/cardano-community/guild-operators/$(VERSION)/scripts/cnode-helper-scripts/gLiveView.sh
-		curl -s -o env https://raw.githubusercontent.com/cardano-community/guild-operators/$(VERSION)/scripts/cnode-helper-scripts/env
+		cd $NODE_HOME/scripts
+		GLBRANCH="node$VERSION"
+		GLURL="https://raw.githubusercontent.com/cardano-community/guild-operators/$GLBRANCH/scripts/cnode-helper-scripts"
+		curl -s -o gLiveView.sh $GLURL/gLiveView.sh
+		curl -s -o env $GLURL/env
+		chmod 755 gLiveView.sh
 		sed -i env  -e "s/\#CONFIG=\"\${CNODE_HOME}\/files\/config.json\"/CONFIG=\"\${NODE_HOME}\/config\/mainnet-config.json\"/g" \
     	-e "s/\#SOCKET=\"\${CNODE_HOME}\/sockets\/node0.socket\"/SOCKET=\"\${NODE_HOME}\/sockets\/node.socket\"/g"
-		chmod 755 gLiveView.sh
 	fi
 	cp -a /scripts/* .
 fi
@@ -111,7 +115,8 @@ then
 	--shelley-operational-certificate $NODE_SHELLEY_OPERATIONAL_CERTIFICATE
 else
 	sed -i ${NODE_CONFIG} -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": true/g"
-	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": true/TraceMempool\": false/g"
+#	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": true/TraceMempool\": false/g"
+	sed -i ${NODE_CONFIG} -e "s/TraceMempool\": false/TraceMempool\": true/g"
 	exec /usr/local/bin/cardano-node run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
