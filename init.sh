@@ -19,21 +19,29 @@ fi
 
 if [ "$NODE_UPDATE_TOPOLOGY" == "true" ]
 then
-	#INITIAL_PEER=$(cat $NODE_TOPOLOGY |jq -r '.Producers[0]|[.addr,.port,.valency]|join(":")')
-	NODE_PEERS="relays-new.cardano-mainnet.iohk.io:3001:2"
+	if [ "$NODE_RUNAS_CORE" == "true" ]
+	then
+		echo ">> Core no default external IOHK peers"
+		NODE_PEERS=""
+	else
+		echo ">> Default external IOHK peers relays-new.cardano-mainnet.iohk.io:3001:2"
+		NODE_PEERS="relays-new.cardano-mainnet.iohk.io:3001:2"
+	fi
 
 	if [ -n "$NODE_CUSTOM_PEERS" ]
 	then
-		echo ">> Custom peers $NODE_CUSTOM_PEERS"
-		NODE_PEERS=$NODE_PEERS,$NODE_CUSTOM_PEERS
+		echo ">> Add custom peers $NODE_CUSTOM_PEERS"
+		NODE_PEERS="$NODE_PEERS,$NODE_CUSTOM_PEERS"
 	fi
 
 	if [ -n "$NODE_CORE" ]
 	then
-		echo ">> Core peers $NODE_CORE"
-		NODE_PEERS=$NODE_CORE:2,$NODE_PEERS
+		echo ">> Core peer $NODE_CORE"
+		NODE_PEERS="$NODE_CORE:2,$NODE_PEERS"
 	fi
 
+	#Sanitize peers
+	NODE_PEERS=$(echo "$NODE_PEERS"|sed -e 's/,,/,/g'|sed -e 's/,$//'|sed -e 's/^,//')
 	/bin/echo -n "$NODE_PEERS" | jq --slurp --raw-input --raw-output 'split(",") | map(split(":")) | map({"addr": .[0],"port": .[1]|tonumber,"valency": .[2]|tonumber}) | {"Producers": .}' > $NODE_TOPOLOGY
 fi
 
@@ -48,9 +56,9 @@ fi
 
 if [ "$NODE_IP" == "" ]
 then
-	echo ">> Set IP to $NODE_IP"
 	IF=$(/sbin/ip route |grep ^default|awk '{print $5}')
 	NODE_IP=$(/sbin/ip -4 addr show dev $IF scope global|grep inet|awk '{print $2}'|awk -F'/' '{print $1}')
+	echo ">> Set IP to $NODE_IP"
 fi
 
 #UPNP behind a upnp NAT
