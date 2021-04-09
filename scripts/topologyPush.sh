@@ -6,8 +6,8 @@
 #NODE_EXTERNAL_IP="CHANGE ME"
 #NODE_EXTERNAL_IP=$(curl ifconfig.me)
 #NODE_EXTERNAL_IP=$(curl icanhazip.com)
-NODE_EXTERNAL_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
-#NODE_EXTERNAL_IP=$(curl http://checkip.amazonaws.com)  # optional. must resolve to the IP you are requesting from
+#NODE_EXTERNAL_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
+NODE_EXTERNAL_IP=$(curl http://checkip.amazonaws.com)  # optional. must resolve to the IP you are requesting from
 
 NODE_CLI="/usr/local/bin/cardano-cli"
 NODE_LOG_DIR="${NODE_HOME}/logs"
