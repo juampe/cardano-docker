@@ -36,8 +36,7 @@ fi
 
 if [ -n "$NODE_BLOCK" ]
 then
-  curl -s "https://api.clio.one/htopology/v1/?port=${NODE_PORT}&blockNo=${NODE_BLOCK}&valency=${NODE_VALENCY}&magic=${NWMAGIC}${T_HOSTNAME}" 
-  #| tee -a $NODE_LOG_DIR/topologyUpdater_lastresult.json
+  curl -s "https://api.clio.one/htopology/v1/?port=${NODE_PORT}&blockNo=${NODE_BLOCK}&valency=${NODE_VALENCY}&magic=${NWMAGIC}${T_HOSTNAME}" | tee -a $NODE_LOG_DIR/topologyPushLog.json
 else
   echo "WARNING Can't obtain block number from node. Can't push. Cardano already starting?"
 fi
