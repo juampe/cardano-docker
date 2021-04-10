@@ -37,7 +37,7 @@ then
 	if [ -n "$NODE_CORE" ]
 	then
 		echo ">> Core peer $NODE_CORE"
-		NODE_PEERS="$NODE_CORE:2,$NODE_PEERS"
+		NODE_PEERS="$NODE_CORE:1,$NODE_PEERS"
 	fi
 
 	#Sanitize peers
@@ -50,8 +50,9 @@ echo ">> Resolved peers $NODE_PEERS"
 
 if [ "$NODE_TOPOLOGY_PULL" == "true" ]
 then
-	echo ">> Topology pull from api.clio.one. Custom peers:[$NODE_PEERS]"
 	/scripts/topologyPull.sh "$NODE_PEERS" "$NODE_TOPOLOGY_PULL_MAX"
+	FINAL_PEERS=$(cat $NODE_TOPOLOGY | jq -r '.Producers|map([.addr,.port,.valency] | join(":") ) | join(",")' )
+	echo ">> Topology pull from api.clio.one. Final peers:[$FINAL_PEERS]"
 fi
 
 if [ "$NODE_IP" == "" ]
