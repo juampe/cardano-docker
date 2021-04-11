@@ -18,9 +18,7 @@ Access to the multi-platform docker [image](https://hub.docker.com/r/juampe/card
 # Minimize supply chain attack. 🔗
 You can supervise all the sources, all the build steps, build yourserlf.
 # Multi-platform image 👪
-
-This is an efford to build cardano for several common productions architectures.
-Is a complex and very demanding docker build process.
+This is an efford to build cardano for several architectures.
 Supported platforms:
 
 * linux/amd64
@@ -71,35 +69,26 @@ rights the node need at least 4 hours of pushing status|
 
 * For relay in ARM64 v8
 
-```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.26.1```
 
 * For relay in AMD64
 
-```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:amd64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:amd64-1.26.1```
 
 * For core in ARM64 v8
 
-```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.26.1```
 
 * For core in AMD64
 
-```docker run --init -d --restart=always --network=host --name="relay1" --dns 1.1.1.1 -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:amd64-1.25.1```
+```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:amd64-1.26.1```
 
 # A complex building proccess recipe to build cardano.🔥
-We are working very hard, to bring this container. The building process in quemu arm64 is huge (20 times slower).
-Please undestand that this is an "spartan race" building process due to qemu limitations.
-We planned to made in 3 phases:
-* Phase 1 Build Cabal 3.2.0.0 free of OFD Locking
- * Build with Github action in 12896s
- * Build with amd64 12VCPU 32GMEM 50GSSD in 7045s
-* Phase 2 Build ghc 8.10.2 compatible with state-of-the-art qemu for multi architecture CI/CD
- * Unable to use Github action due to service limitations
- * Build with amd64 12VCPU 32GMEM 50GSSD in 26513s
-* Phase 3 Bulid Cardano 1.25.1
- * Unable to use Github action due to service limitations
- * Unable to use qemu with amd64 due to ghc-pkg OFD hLock 
- * Build for in amd64 12VCPU 32GMEM 50GSSD in 26513.0s
- * Build for in arm64v8 t4g.large 2VCPU 8GMEM 30GSSD Gravitron with 2G swapfile
+
+* Unable to use Github action due to service limitations
+* Unable to use qemu with amd64 due to ghc-pkg OFD hLock 
+* Build for in amd64 2VCPU 8GMEM 30GSSD with 4G swapfile
+* Build for in arm64v8 t4g.large 2VCPU 8GMEM 30GSSD Gravitron with 4G swapfile
 
 # Build your own container. 🏗️
 From a ubuntu:groovy prepare for docker buildx multiarch environment
@@ -111,6 +100,7 @@ sudo apt-get -y install git make docker.io byobu
 
 git clone https://github.com/juampe/cardano-docker.git
 cd cardano-docker
+git checkout 1.26.1
 
 #Adapt Makefile to DOCKER_TAG to tag and fit your own docker registry
 make
