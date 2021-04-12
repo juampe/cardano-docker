@@ -48,7 +48,7 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_IP|""|The ip assigned is the one with the default route, but it can be assigned|
 |NODE_PORT|"6000"|This is the port and defaults the port used by Guild|
 |NODE_UPNP|false|If true the container will use upnpc to map the port in your router|
-|NODE_CORE|""|For relays, list of the cores/producers nodes using this format core1:port1:valency1,core2:port2:valency2,...|
+|NODE_CORE|""|For relays, define core using this format host1:port1:1|
 |NODE_RUNAS_CORE|false|By default run only as relay|
 |NODE_UPDATE_TOPOLOGY|true|Force update topology file|
 |NODE_CUSTOM_PEERS|""|You can define peers using this format host1:port1:valency1,host2:port2:valency2,...|
