@@ -60,8 +60,7 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_SHELLEY_OPERATIONAL_CERTIFICATE|"$NODE_HOME/keys/pool/node.cert"|Must be generated previously to be producer node|
 |NODE_SCRIPTS|false|Install aditional and useful operator scripts and tools|
 |NODE_TOPOLOGY_PUSH|false|On relay push node information to api.clio.one in order to pull peers|
-|NODE_TOPOLOGY_PULL|false|On relay start pull peer information from api.clio.one, $NODE_CORE defined recomended. IMPORTANT to have pull 
-rights the node need at least 4 hours of pushing status|
+|NODE_TOPOLOGY_PULL|false|On relay start pull peer information from api.clio.one, $NODE_CORE defined recomended. IMPORTANT to have pull rights the node need at least 4 hours of pushing status|
 |NODE_TOPOLOGY_PULL_MAX|10|Number of peers to pull into topology file|
 |NODE_PROM_LISTEN|""|Listen address for prometheus monitor|
 
@@ -70,11 +69,11 @@ rights the node need at least 4 hours of pushing status|
 
 * For relay in ARM64 v8
 
-```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.26.1```
+```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.26.1```
 
 * For relay in AMD64
 
-```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:amd64-1.26.1```
+```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:amd64-1.26.1```
 
 * For core in ARM64 v8
 
