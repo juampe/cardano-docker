@@ -36,7 +36,8 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
                    +config
                    +db
                    +sockets
-                   +keys
+                   +keys|
+                        +pool
                    +logs
                    +scripts
 ```
@@ -47,7 +48,7 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_IP|""|The ip assigned is the one with the default route, but it can be assigned|
 |NODE_PORT|"6000"|This is the port and defaults the port used by Guild|
 |NODE_UPNP|false|If true the container will use upnpc to map the port in your router|
-|NODE_CORE|""|For relays, the IP:PORT of the core/producer node|
+|NODE_CORE|""|For relays, list of the cores/producers nodes using this format core1:port1:valency1,core2:port2:valency2,...|
 |NODE_RUNAS_CORE|false|By default run only as relay|
 |NODE_UPDATE_TOPOLOGY|true|Force update topology file|
 |NODE_CUSTOM_PEERS|""|You can define peers using this format host1:port1:valency1,host2:port2:valency2,...|
@@ -104,4 +105,20 @@ git checkout 1.26.1
 
 #Adapt Makefile to DOCKER_TAG to tag and fit your own docker registry
 make
+```
+
+# Build using cache repo pre-compiled cardano binaries. ⌛
+From a ubuntu:groovy prepare for docker buildx multiarch environment
+At the moment, due to described qemu emulation problems, the container is built in the same architecture.
+
+```
+sudo apt-get update
+sudo apt-get -y install git make docker.io byobu
+
+git clone https://github.com/juampe/cardano-docker.git
+cd cardano-docker
+git checkout 1.26.1
+
+#Adapt Makefile to DOCKER_TAG to tag and fit your own docker registry
+make cache
 ```

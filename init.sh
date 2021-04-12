@@ -37,7 +37,7 @@ then
 	if [ -n "$NODE_CORE" ]
 	then
 		echo ">> Core peer $NODE_CORE"
-		NODE_PEERS="$NODE_CORE:1,$NODE_PEERS"
+		NODE_PEERS="$NODE_CORE,$NODE_PEERS"
 	fi
 
 	#Sanitize peers
