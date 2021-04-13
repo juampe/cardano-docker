@@ -69,26 +69,71 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 
 * For relay in ARM64 v8
 
-```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.26.1```
+```
+docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.26.1
+```
 
 * For relay in AMD64
 
-```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:amd64-1.26.1```
+```
+docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:amd64-1.26.1
+```
 
 * For core in ARM64 v8
 
-```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.26.1```
+```
+docker run --init -d --restart=always --network=host --name="core1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.26.1
+```
 
 * For core in AMD64
 
-```docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:amd64-1.26.1```
+```
+docker run --init -d --restart=always --network=host --name="core1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:amd64-1.26.1
+```
+
+* Relay launch script for ARM64
+Keep in mind that the docker daemon must be enabled and running in startup. Gracefully restart cardano too.
+
+```
+cat > run.sh << EOF
+#!/bin/bash
+DNAME="relay1"
+CVER="juampe/cardano:arm64-1.26.1"
+docker pull $CVER
+docker stop -t 60 $DNAME
+docker rm $DNAME
+docker run --init -d --restart=always --network=host --name="$DNAME" -v /home/cardano/cnode:/home/cardano/cnode -e "TZ=Europe/Madrid"  -e "NODE_CORE=core1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" -e "NODE_TOPOLOGY_PULL_MAX=20" -e "NODE_PROM_LISTEN=0.0.0.0" $CVER
+dockerlog $DNAME
+EOF
+chmod 755 run.sh
+./run.sh
+```
+
+* Core launch script for AMD64
+Keep in mind that the docker daemon must be enabled and running in startup. Gracefully restart cardano too.
+
+```
+cat > run.sh << EOF
+#!/bin/bash
+DNAME="core1"
+CVER="juampe/cardano:amd64-1.26.1"
+docker pull $CVER
+docker stop -t 60 $DNAME
+docker rm $DNAME
+docker run --init -d --restart=always --network=host --name="core1" -v /home/cardano/cnode:/home/cardano/cnode -e "TZ=Europe/Madrid"  -e "NODE_CUSTOM_PEERS=relay0.nutcracker.work:6000:1,relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_PROM_LISTEN=0.0.0.0" -e "NODE_RUNAS_CORE=true" -e "NODE_TRACE_MEMPOOL=true" $CVER
+dockerlog $DNAME
+EOF
+chmod 755 run.sh
+./run.sh
+```
+
 
 # A complex building proccess recipe to build cardano.🔥
 
 * Unable to use Github action due to service limitations
 * Unable to use qemu with amd64 due to ghc-pkg OFD hLock 
-* Build for in amd64 2VCPU 8GMEM 30GSSD with 4G swapfile
-* Build for in arm64v8 t4g.large 2VCPU 8GMEM 30GSSD Gravitron with 4G swapfile
+* Build in amd64 2VCPU 8GMEM 30GSSD with 4G swapfile
+* Build in arm64v8 t4g.large 2VCPU 8GMEM 30GSSD Gravitron with 4G swapfile
 
 # Build your own container. 🏗️
 From a ubuntu:groovy prepare for docker buildx multiarch environment
@@ -107,6 +152,8 @@ make
 ```
 
 # Build using cache repo pre-compiled cardano binaries. ⌛
+This uses a pre-builded cardano binary created in the full build process "/cardano.tgz".
+
 From a ubuntu:groovy prepare for docker buildx multiarch environment
 At the moment, due to described qemu emulation problems, the container is built in the same architecture.
 
