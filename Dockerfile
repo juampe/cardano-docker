@@ -73,6 +73,8 @@ ENV LD_LIBRARY_PATH=/usr/local/lib \
   NODE_TRACE_MEMPOOL=false \
   NODE_PROM_LISTEN="" 
 
+HEALTHCHECK --interval=5m --timeout=2m --retries=3 --start-period=1m CMD /scripts/healthCheck.sh 120 || bash -c 'kill -s 2 -1 && (sleep 60; kill -s 9 -1)'
+
 USER cardano
 
 COPY init.sh /
