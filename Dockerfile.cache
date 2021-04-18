@@ -36,6 +36,10 @@ ENV LD_LIBRARY_PATH=/usr/local/lib \
 
 USER cardano
 
+HEALTHCHECK --interval=5m --timeout=30s --retries=3 --start-period=30m CMD /scripts/getTip.sh > /dev/null 2>&1 
+#check and restart too
+#|| bash -c 'kill -s 2 -1 && (sleep 60; kill -s 9 -1)'
+
 COPY init.sh /
 STOPSIGNAL SIGINT
 ENTRYPOINT [ "/init.sh" ]
