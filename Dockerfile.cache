@@ -36,7 +36,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib \
 
 USER cardano
 
-HEALTHCHECK --interval=5m --timeout=30s --retries=3 --start-period=30m CMD /scripts/getTip.sh > /dev/null 2>&1 
+HEALTHCHECK --interval=10m --timeout=2m --retries=3 --start-period=15m CMD /scripts/getTip.sh > /dev/null 2>&1 
 #check and restart too
 #|| bash -c 'kill -s 2 -1 && (sleep 60; kill -s 9 -1)'
 
