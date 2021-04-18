@@ -91,7 +91,8 @@ docker run --init -d --restart=always --network=host --name="core1" -e "TZ=Europ
 docker run --init -d --restart=always --network=host --name="core1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:amd64-1.26.1
 ```
 
-* Relay launch script for ARM64
+* Relay launch script for ARM64.
+
 Keep in mind that the docker daemon must be enabled and running in startup. Gracefully restart cardano too.
 
 ```
@@ -109,7 +110,8 @@ chmod 755 run.sh
 ./run.sh
 ```
 
-* Core launch script for AMD64
+* Core launch script for AMD64.
+
 Keep in mind that the docker daemon must be enabled and running in startup. Gracefully restart cardano too.
 
 ```
