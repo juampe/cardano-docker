@@ -1,7 +1,14 @@
 #!/bin/bash
 #set -xv
 
+#If not true all is ok
+if [ "$NODE_HEALTH" != "true" ]
+then
+    exit 0
+fi
+
 export CARDANO_NODE_SOCKET_PATH="$NODE_HOME/sockets/node.socket"
+
 TIMEOUT=$1
 
 if [ -z "$TIMEOUT" ]
