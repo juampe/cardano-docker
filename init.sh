@@ -58,7 +58,7 @@ fi
 if [ "$NODE_IP" == "" ]
 then
 	IF=$(/sbin/ip route |grep ^default|awk '{print $5}')
-	NODE_IP=$(/sbin/ip -4 addr show dev $IF scope global|grep inet|awk '{print $2}'|awk -F'/' '{print $1}')
+	NODE_IP=$(/sbin/ip -4 addr show dev $IF scope global|grep $IF$|awk '{print $2}'|awk -F'/' '{print $1}')
 	echo ">> Set IP to $NODE_IP"
 fi
 
