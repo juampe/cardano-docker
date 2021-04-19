@@ -75,6 +75,14 @@ then
 	echo ">> Set scripts to $NODE_HOME/scripts/"
 	cd $NODE_HOME/scripts/
 	cp -a /scripts/* .
+
+# Install cncli
+#RUN git clone https://github.com/AndrewWestberg/cncli \
+#    && cd cncli \
+#    && cargo install --path . --force \
+#    && cncli -V \
+#    && cd / && rm -rf cncli
+
 fi
 
 if [ -n "$NODE_PROM_LISTEN"  ]
