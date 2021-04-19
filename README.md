@@ -63,6 +63,7 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_TOPOLOGY_PULL|false|On relay start pull peer information from api.clio.one, $NODE_CORE defined recomended. IMPORTANT to have pull rights the node need at least 4 hours of pushing status|
 |NODE_TOPOLOGY_PULL_MAX|10|Number of peers to pull into topology file|
 |NODE_PROM_LISTEN|""|Listen address for prometheus monitor|
+|NODE_HEALTH|false|Enable tip health monitoring, disable for upgrade from a db previous version|
 
 
 ## Examples. 🗜️
