@@ -64,6 +64,7 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_TOPOLOGY_PULL_MAX|10|Number of peers to pull into topology file|
 |NODE_PROM_LISTEN|""|Listen address for prometheus monitor|
 |NODE_HEALTH|false|Enable tip health monitoring, disable for upgrade from a db previous version|
+|NODE_HEALTH_TIMEOUT|180|Timeout to get tip health test|
 
 
 ## Examples. 🗜️
