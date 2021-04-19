@@ -12,8 +12,6 @@ then
     exit 0
 fi
 
-export CARDANO_NODE_SOCKET_PATH="$NODE_HOME/sockets/node.socket"
-
 if [ -n "$NODE_HEALTH_TIMEOUT" ]
 then
     TIMEOUT=$NODE_HEALTH_TIMEOUT
@@ -26,6 +24,7 @@ then
     TIMEOUT=120
 fi
 
+export CARDANO_NODE_SOCKET_PATH="$NODE_HOME/sockets/node.socket"
 if [ -S "$CARDANO_NODE_SOCKET_PATH" ]
 then
     #started and respond to query
