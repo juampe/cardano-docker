@@ -33,9 +33,10 @@ ENV LD_LIBRARY_PATH=/usr/local/lib \
   NODE_TRACE_FETCH_DECISIONS=true \
   NODE_TRACE_MEMPOOL=false \
   NODE_PROM_LISTEN="" \
-  NODE_HEALTH=false
+  NODE_HEALTH=false \
+  NODE_HEALTH_TIMEOUT=180
 
-HEALTHCHECK --interval=10m --timeout=3m --retries=3 --start-period=20m CMD /scripts/healthCheck.sh 180 || bash -c 'kill -s 2 -1 && (sleep 60; kill -s 9 -1)'
+HEALTHCHECK --interval=10m --timeout=3m --retries=3 --start-period=20m CMD /scripts/healthCheck.sh || bash -c 'kill -s 2 -1 && (sleep 60; kill -s 9 -1)'
 
 USER cardano
 
