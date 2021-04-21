@@ -1,14 +1,14 @@
 <!-- markdownlint-configure-file { "MD004": { "style": "consistent" } } -->
 <!-- markdownlint-disable MD013 -->
 <!-- markdownlint-disable MD033 -->
-<p align="center">
-    <a href="https://docs.cardano.org/en/latest/">
-        <img src="https://github.com/juampe/cardano-docker/blob/main/img/cadano-logo.png?raw=true" width="150" alt="Cardano">
-        <img src="https://github.com/juampe/cardano-docker/blob/main/img/heart.png?raw=true" width="50" alt="Heart">
-        <img src="https://github.com/juampe/cardano-docker/blob/main/img/heart.png?raw=true" width="50" alt="RPi">
-        <img src="https://github.com/juampe/cardano-docker/blob/main/img/heart.png?raw=true" width="50" alt="Heart">
-        <img src="https://github.com/juampe/cardano-docker/blob/main/img/heart.png?raw=true" width="50" alt="Graviton">
-    </a>
+<p align="center" valign="center">
+   <div>
+        <img align="center" src="https://github.com/juampe/cardano-docker/blob/1.26.2/img/cardano-logo.png?raw=true" width="200" alt="Heart">
+        <img align="center" src="https://github.com/juampe/cardano-docker/blob/1.26.2/img/heart.png?raw=true" width="40" alt="Heart">
+        <img align="center" src="https://github.com/juampe/cardano-docker/blob/1.26.2/img/rpi.png?raw=true" width="60" alt="RPi">
+        <img align="center" src="https://github.com/juampe/cardano-docker/blob/1.26.2/img/heart.png?raw=true" width="40" alt="Heart">
+        <img align="center"  src="https://github.com/juampe/cardano-docker/blob/1.26.2/img/graviton.png?raw=true" width="200" alt="Graviton">
+    </div>
     <br>
     <strong>Cardano the decentralized third-generation proof-of-stake blockchain platform.</strong>
 </p>
