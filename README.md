@@ -3,7 +3,11 @@
 <!-- markdownlint-disable MD033 -->
 <p align="center">
     <a href="https://docs.cardano.org/en/latest/">
-        <img src="https://docs.cardano.org/en/latest/_static/cardano-logo.png" width="150" alt="Cardano">
+        <img src="https://github.com/juampe/cardano-docker/blob/main/img/cadano-logo.png?raw=true" width="150" alt="Cardano">
+        <img src="https://github.com/juampe/cardano-docker/blob/main/img/heart.png?raw=true" width="50" alt="Heart">
+        <img src="https://github.com/juampe/cardano-docker/blob/main/img/heart.png?raw=true" width="50" alt="RPi">
+        <img src="https://github.com/juampe/cardano-docker/blob/main/img/heart.png?raw=true" width="50" alt="Heart">
+        <img src="https://github.com/juampe/cardano-docker/blob/main/img/heart.png?raw=true" width="50" alt="Graviton">
     </a>
     <br>
     <strong>Cardano the decentralized third-generation proof-of-stake blockchain platform.</strong>
