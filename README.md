@@ -74,25 +74,25 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 * For relay in ARM64 v8
 
 ```
-docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:arm64-1.26.2
+docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano
 ```
 
 * For relay in AMD64
 
 ```
-docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano:amd64-1.26.2
+docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano
 ```
 
 * For core in ARM64 v8
 
 ```
-docker run --init -d --restart=always --network=host --name="core1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:arm64-1.26.2
+docker run --init -d --restart=always --network=host --name="core1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano
 ```
 
 * For core in AMD64
 
 ```
-docker run --init -d --restart=always --network=host --name="core1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano:amd64-1.26.2
+docker run --init -d --restart=always --network=host --name="core1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano
 ```
 
 * Relay launch script for ARM64.
@@ -103,7 +103,7 @@ Keep in mind that the docker daemon must be enabled and running in startup. Grac
 cat > run.sh << EOF
 #!/bin/bash
 DNAME="relay1"
-CVER="juampe/cardano:arm64-1.26.2"
+CVER="juampe/cardano"
 docker pull $CVER
 docker stop -t 60 $DNAME
 docker rm $DNAME
@@ -122,7 +122,7 @@ Keep in mind that the docker daemon must be enabled and running in startup. Grac
 cat > run.sh << EOF
 #!/bin/bash
 DNAME="core1"
-CVER="juampe/cardano:amd64-1.26.2"
+CVER="juampe/cardano"
 docker pull $CVER
 docker stop -t 60 $DNAME
 docker rm $DNAME
