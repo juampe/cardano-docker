@@ -1,7 +1,7 @@
 FROM ubuntu:groovy
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG TARGETARCH
-ARG CARDANO_VERSION=1.26.1
+ARG CARDANO_VERSION=1.26.2
 ARG JOBS="-j1"
 
 COPY repo/cardano-${TARGETARCH}-${CARDANO_VERSION}.tgz /cardano.tgz
