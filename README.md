@@ -30,8 +30,9 @@ Supported platforms:
 
 Access to the git [repository](https://github.com/juampe/cardano-docker)
 
-🙏If you apprecciate the effort, please consider to support us making an ADA donation or staking ADA into the Nutcracker [NUTCK](https://nutcracker.work/) pool. 
+🙏If you like our work, we will appreciate any ADA donation:
 > addr1qys8y92emhj6r5rs7puw6df9ahcvna6gtdm7jlseg8ek7xf46xjc0eelmgtjvmcl9tjgaamz93f4e5nu86dus6grqyrqd28l0r
+Come and see our stake pool Nutcracker [NUTCK](https://nutcracker.work/) ADA pool. 
 
 # Running a Cardano-Node ⚡
 ## Cardano directory scheme
@@ -71,6 +72,7 @@ Access to the git [repository](https://github.com/juampe/cardano-docker)
 |NODE_PROM_LISTEN|""|Listen address for prometheus monitor|
 |NODE_HEALTH|false|Enable tip health monitoring, disable it for upgrade from a db previous version|
 |NODE_HEALTH_TIMEOUT|180|Timeout to get tip health test|
+|NODE_LOW_PRIORITY|false|Run the node with CPU low priority and best-effort IO scheduler|
 
 
 ## Examples. 🗜️

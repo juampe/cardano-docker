@@ -123,10 +123,17 @@ else
 	sed -i $NODE_CONFIG -e "s/TraceBlockFetchDecisions\": true/TraceBlockFetchDecisions\": false/g"
 fi
 	
+if [ "$NODE_LOW_PRIORITY" == "true" ]
+then
+	NODE_BINARY="nice -n10 ionice -c2 -n5 /usr/local/bin/cardano-node"
+else
+	NODE_BINARY="/usr/local/bin/cardano-node"
+fi
+
 #Run cardano and handle SIGINT for gracefuly shutdown
 if [ "$NODE_RUNAS_CORE" == "true" ]
 then
-	exec /usr/local/bin/cardano-node run \
+	exec $NODE_BINARY run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
   	--config $NODE_CONFIG  \
@@ -137,7 +144,7 @@ then
 	--shelley-vrf-key $NODE_SHELLEY_VRF_KEY \
 	--shelley-operational-certificate $NODE_SHELLEY_OPERATIONAL_CERTIFICATE
 else
-	exec /usr/local/bin/cardano-node run \
+	exec $NODE_BINARY run \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
   	--config $NODE_CONFIG  \
