@@ -125,6 +125,7 @@ fi
 	
 if [ "$NODE_LOW_PRIORITY" == "true" ]
 then
+	echo ">> Set Low Priority mode"
 	NODE_BINARY="nice -n10 ionice -c2 -n5 /usr/local/bin/cardano-node"
 else
 	NODE_BINARY="/usr/local/bin/cardano-node"

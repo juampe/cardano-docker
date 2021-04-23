@@ -15,8 +15,9 @@ build-cache:
 	docker push $(DOCKER_TAG):$(ARCH)-$(CARDANO_VERSION)
 
 manifest:
+	docker manifest create $(DOCKER_TAG):$(CARDANO_VERSION) --amend $(DOCKER_TAG):arm64-$(CARDANO_VERSION) --amend $(DOCKER_TAG):amd64-$(CARDANO_VERSION)
+	docker manifest push $(DOCKER_TAG):$(CARDANO_VERSION)
 	docker manifest rm $(DOCKER_TAG)
 	docker manifest create $(DOCKER_TAG) --amend $(DOCKER_TAG):arm64-$(CARDANO_VERSION) --amend $(DOCKER_TAG):amd64-$(CARDANO_VERSION)
 	docker manifest push $(DOCKER_TAG)
-	docker manifest create $(DOCKER_TAG):$(CARDANO_VERSION) --amend $(DOCKER_TAG):arm64-$(CARDANO_VERSION) --amend $(DOCKER_TAG):amd64-$(CARDANO_VERSION)
-	docker manifest push $(DOCKER_TAG):$(CARDANO_VERSION)
+	
