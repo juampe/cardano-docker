@@ -77,28 +77,16 @@ Come and see our stake pool Nutcracker [NUTCK](https://nutcracker.work/) ADA poo
 
 ## Examples. 🗜️
 
-* For relay in ARM64 v8
+* For relay
 
 ```
 docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano
 ```
 
-* For relay in AMD64
-
-```
-docker run --init -d --restart=always --network=host --name="relay1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_CORE=yourcore1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" juampe/cardano
-```
-
-* For core in ARM64 v8
+* For core in ARM64
 
 ```
 docker run --init -d --restart=always --network=host --name="core1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano
-```
-
-* For core in AMD64
-
-```
-docker run --init -d --restart=always --network=host --name="core1" -e "TZ=Europe/Madrid" -v /home/cardano/cnode:/home/cardano/cnode  -e "NODE_RUNAS_CORE=true" -e "NODE_CUSTOM_PEERS=relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" juampe/cardano
 ```
 
 * Relay launch script for ARM64.
@@ -148,7 +136,8 @@ chmod 755 run.sh
 * Build in arm64v8 t4g.large 2VCPU 8GMEM 30GSSD Gravitron with 4G swapfile
 
 # Build your own container. 🏗️
-From a ubuntu:groovy prepare for docker buildx multiarch environment
+From a ubuntu:groovy prepare for docker build multiarch environment.
+
 At the moment, due to described qemu emulation problems, the container is built in the same architecture.
 
 ```
@@ -166,7 +155,8 @@ make
 # Build using cache repo pre-compiled cardano binaries. ⌛
 This uses a pre-builded cardano binary created in the full build process "/cardano.tgz".
 
-From a ubuntu:groovy prepare for docker buildx multiarch environment
+From a ubuntu:groovy prepare for docker build multiarch environment.
+
 At the moment, due to described qemu emulation problems, the container is built in the same architecture.
 
 ```
@@ -179,4 +169,108 @@ git checkout 1.26.2
 
 #Adapt Makefile to DOCKER_TAG to tag and fit your own docker registry
 make cache
+```
+
+# Experimental low resource procedure. 💸
+## Use cases only for cardano dedicated resources
+
+* Raspberri Pi 4 with 4GibRAM and USB3.0 UASP+TRIM SSD (Homebrew)
+* Old laptop x64 with 4GibRAM with SATA SSD (Homebrew)
+* AWS t4g.medium with gp2 disk (~2$/day)
+
+## Procedure
+### 1. Install Ubuntu server (20.04, 20.10 or 21.04 best for zram)
+### 2. Prepare docker runtime
+From ubuntu user login
+```
+sudo apt-get update
+sudo DEBIAN_FRONTEND="noninteractive" apt-get -y upgrade
+sudo DEBIAN_FRONTEND="noninteractive" apt-get -y install jq docker.io net-tools prometheus-node-exporter wget curl bc tcptraceroute
+sudo adduser --disabled-password --gecos "cardano" cardano #You can set the password later 
+sudo sudo usermod -aG docker cardano
+#dockerlog script
+cat > /usr/local/bin/dockerlog << EOF
+#!/bin/bash
+docker logs --tail 50 --follow --timestamps \$1
+EOF
+#dockerps script
+cat > /usr/local/bin/dockerps << EOF
+#!/bin/bash
+docker ps --format '{{.Names}} => {{ .Status }}'|grep -v portainer_agent|sort
+EOF
+chmod 755 /usr/local/bin/dockerps /usr/local/bin/dockerlog
+#enable docker
+systemctl enable docker
+systemctl start docker
+#remove disable snaps
+snap list --all|grep disabled|awk '{print "snap remove " $1 " --revision=" $3}'|sh
+```
+
+### 3. Prepare SSD swap
+From ubuntu user login (fstab not sudo friendly)
+```
+sudo bash
+fallocate -l 4G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+echo "/swapfile swap swap defaults 0 0" >> /etc/fstab
+#This is for minimize swap IO usage
+cat > /etc/sysctl.d/90-swapiness.conf << EOF
+vm.swappiness = 1
+EOF
+```
+
+### 4. Prepare zram swap
+From ubuntu user login
+```
+sudo apt-get -y install zram-tools #Not in AWS
+sudo apt-get -y install zram-tools linux-modules-extra-aws #In case of AWS needs extra zram.ko module
+sudo /bin/echo -e "PERCENTAGE=20\nPERCENT=20\n" >> /etc/default/zramswap
+sudo systemctl enable zramswap
+sudo systemctl start zramswap
+swapon #Check swap + zram
+```
+
+### 5. Prepare a cardano relay
+From cardano user login
+```
+#Some environment
+echo export NODE_HOME=$HOME/cnode >> $HOME/.bashrc
+echo PATH="$HOME/cnode/scripts:$PATH" >> $HOME/.bashrc
+source $HOME/.bashrc
+#Launch script
+mkdir -p ~/cnode/scripts
+cat > ~/cnode/scripts/run.sh << EOF
+#!/bin/bash
+DNAME="relay0"
+CVER="juampe/cardano" #You may want freeze the version
+docker pull $CVER #You may want to delete this and freeze the version
+docker stop -t 60 $DNAME
+docker rm $DNAME
+docker run --init -d --restart=always --network=host --name="$DNAME" --hostname "$DNAME" -v /home/cardano/cnode:/home/cardano/cnode -e "TZ=Europe/Madrid" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" -e "NODE_TOPOLOGY_PULL_MAX=10" -e "NODE_PROM_LISTEN=0.0.0.0" -e "NODE_HEALTH=true"  -e "NODE_LOW_PRIORITY=true" $CVER
+dockerlog $DNAME #You can delete this if don't want see initial logs
+EOF
+```
+
+**TIP:** To reduce integration you may want to rsync the blockchain cnode/db from another client
+
+### 6. Basic Operation
+
+From cardano user login
+* Run the node, restart after change options
+```
+run.sh #You can interrupt log with Ctrl+c safely o made a gracefull restart running it again
+```
+* Check container estatus
+```
+dockerps
+```
+* Check cardano log
+```
+dockerlog relay0
+```
+* gLiveView
+```
+docker exec -it relay0 /bin/bash /home/cardano/cnode/scripts/gLiveView.sh
 ```
