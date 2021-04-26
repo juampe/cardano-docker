@@ -251,6 +251,7 @@ docker rm $DNAME
 docker run --init -d --restart=always --network=host --name="$DNAME" --hostname "$DNAME" -v /home/cardano/cnode:/home/cardano/cnode -e "TZ=Europe/Madrid" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" -e "NODE_TOPOLOGY_PULL_MAX=10" -e "NODE_PROM_LISTEN=0.0.0.0" -e "NODE_HEALTH=true"  -e "NODE_LOW_PRIORITY=true" $CVER
 dockerlog $DNAME #You can delete this if don't want see initial logs
 EOF
+chmod 755 ~/cnode/scripts/run.sh
 ```
 
 **TIP:** To reduce integration you may want to rsync the blockchain cnode/db from another client
@@ -260,7 +261,7 @@ EOF
 From cardano user login
 * Run the node, restart after change options
 ```
-run.sh #You can interrupt log with Ctrl+c safely o made a gracefull restart running it again
+run.sh #You can interrupt log with Ctrl+c safely or make a gracefull restart running it again
 ```
 * Check container estatus
 ```
@@ -272,5 +273,5 @@ dockerlog relay0
 ```
 * gLiveView
 ```
-docker exec -it relay0 /bin/bash /home/cardano/cnode/scripts/gLiveView.sh
+docker exec -it relay0 /home/cardano/cnode/scripts/gLiveView.sh
 ```
