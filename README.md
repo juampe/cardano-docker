@@ -176,12 +176,12 @@ make cache
 
 * Raspberri Pi 4 with 4GibRAM and USB3.0 UASP+TRIM SSD (Homebrew)
 * Old laptop x64 with 4GibRAM with SATA SSD (Homebrew)
-* AWS t4g.medium with gp2 disk (~2$/day)
+* AWS t4g.medium with gp2 disk (~1$/day)
 
 ## Procedure
-### 1. Install Ubuntu server (20.04, 20.10 or 21.04 best for zram)
+### 1. Install Ubuntu server (21.04 best for zram)
 ### 2. Prepare docker runtime
-From ubuntu user login
+From ubuntu 21.04 user login
 ```
 sudo apt-get update
 sudo DEBIAN_FRONTEND="noninteractive" apt-get -y upgrade
@@ -226,7 +226,7 @@ From ubuntu user login
 ```
 sudo apt-get -y install zram-tools #Not in AWS
 sudo apt-get -y install zram-tools linux-modules-extra-aws #In case of AWS needs extra zram.ko module
-sudo /bin/echo -e "PERCENTAGE=20\nPERCENT=20\n" >> /etc/default/zramswap
+sudo /bin/echo -e "PERCENT=50\n" >> /etc/default/zramswap
 sudo systemctl enable zramswap
 sudo systemctl start zramswap
 swapon #Check swap + zram
