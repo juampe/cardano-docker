@@ -26,13 +26,13 @@ This is an efford to build cardano for several architectures.
 Supported platforms:
 
 * linux/amd64
-* linux/arm64/v8
+* linux/arm64
+* linux/riscv64
 
 Access to the git [repository](https://github.com/juampe/cardano-docker)
 
-🙏If you like our work, we will appreciate any ADA donation:
-> addr1qys8y92emhj6r5rs7puw6df9ahcvna6gtdm7jlseg8ek7xf46xjc0eelmgtjvmcl9tjgaamz93f4e5nu86dus6grqyrqd28l0r
-Come and see our stake pool Nutcracker [NUTCK](https://nutcracker.work/) ADA pool. 
+Access to the debootstrap ubuntu [image](https://hub.docker.com/r/juampe/ubuntu).
+Access to the debootstrap ubuntu git [repository](https://github.com/juampe/ubuntu)
 
 # Running a Cardano-Node ⚡
 ## Cardano directory scheme
@@ -275,3 +275,6 @@ dockerlog relay0
 ```
 docker exec -it relay0 /home/cardano/cnode/scripts/gLiveView.sh
 ```
+# Enjoy!🍿
+🙏If you apprecciate the effort, please consider to support us making a Cardano (ADA) donation.
+>addr1qys8y92emhj6r5rs7puw6df9ahcvna6gtdm7jlseg8ek7xf46xjc0eelmgtjvmcl9tjgaamz93f4e5nu86dus6grqyrqd28l0r
