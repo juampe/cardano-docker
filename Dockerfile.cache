@@ -1,12 +1,13 @@
-FROM ubuntu:groovy
+ARG TARGETARCH
+FROM juampe/ubuntu:hirsute-${TARGETARCH}
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG TARGETARCH
 ARG CARDANO_VERSION=1.26.2
 ARG JOBS="-j1"
 
 COPY repo/cardano-${TARGETARCH}-${CARDANO_VERSION}.tgz /cardano.tgz
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase libnuma1
-RUN cd / && tar -xvzf /cardano.tgz && rm /cardano.tgz
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase libnuma1  && apt-get -y clean
+RUN cd / && tar -xvzf /cardano.tgz && rm /cardano.tgz && LD_LIBRARY_PATH=/usr/local/lib cardano-cli --version && LD_LIBRARY_PATH=/usr/local/lib cardano-node --version
 RUN adduser --disabled-password --gecos "cardano" --uid 1001 cardano
 COPY scripts/ /scripts/
 
