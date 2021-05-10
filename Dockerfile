@@ -1,4 +1,5 @@
-FROM ubuntu:groovy as builder
+ARG TARGETARCH
+FROM juampe/ubuntu:hirsute-${TARGETARCH} as builder
 
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND="noninteractive"
@@ -41,11 +42,11 @@ RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/loc
   && tar -cvzf /cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium*
 
 #Now the final container with our cardano installed
-FROM ubuntu:groovy
+FROM juampe/ubuntu:hirsute-${TARGETARCH}
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tgz /
-RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase libnuma1
-RUN cd / && tar -xvzf /cardano.tgz
+RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase libnuma1 && apt-get -y clean
+RUN cd / && tar -xvzf /cardano.tgz && LD_LIBRARY_PATH=/usr/local/lib cardano-cli --version && LD_LIBRARY_PATH=/usr/local/lib cardano-node --version
 RUN adduser --disabled-password --gecos "cardano" --uid 1001 cardano
 COPY scripts/ /scripts/
 
