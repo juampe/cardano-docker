@@ -1,0 +1,17 @@
+diff --git a/cardano-node/cardano-node.cabal b/cardano-node/cardano-node.cabal
+index 83b92a69..71c161ee 100644
+--- a/cardano-node/cardano-node.cabal
++++ b/cardano-node/cardano-node.cabal
+@@ -157,7 +157,11 @@ executable cardano-node
+
+   if arch(arm)
+     ghc-options:        "-with-rtsopts=-T -I0 -A16m -N1 --disable-delayed-os-memory-return"
+-  else
++
++  if arch(riscv64)
++    ghc-options:        "-with-rtsopts=-T -I0 -A16m --disable-delayed-os-memory-return"
++
++  if !arch(arm) && !arch(riscv64)
+     ghc-options:        "-with-rtsopts=-T -I0 -A16m -N2 --disable-delayed-os-memory-return"
+
+   other-modules:        Paths_cardano_node
