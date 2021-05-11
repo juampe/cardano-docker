@@ -9,7 +9,7 @@
         <img align="center" src="https://github.com/juampe/cardano-docker/blob/main/img/heart.png?raw=true" width="40" alt="Heart">
         <img align="center"  src="https://github.com/juampe/cardano-docker/blob/main/img/graviton.png?raw=true" width="200" alt="Graviton">
         <img align="center" src="https://github.com/juampe/cardano-docker/blob/main/img/heart.png?raw=true" width="40" alt="Heart">
-        <img align="center"  src="https://github.com/juampe/cardano-docker/blob/main/img/riscv.jpg?raw=true" width="200" alt="RISCV">
+        <img align="center"  src="https://github.com/juampe/cardano-docker/blob/main/img/riscv.jpg?raw=true" width="150" alt="RISCV">
     </div>
     <br>
     <strong>Cardano the decentralized third-generation proof-of-stake blockchain platform.</strong>
