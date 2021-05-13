@@ -34,6 +34,7 @@ Supported platforms:
 Access to the git [repository](https://github.com/juampe/cardano-docker)
 
 Access to the debootstrap ubuntu [image](https://hub.docker.com/r/juampe/ubuntu).
+
 Access to the debootstrap ubuntu git [repository](https://github.com/juampe/ubuntu)
 
 # Running a Cardano-Node ⚡
@@ -133,12 +134,13 @@ chmod 755 run.sh
 # A complex building proccess recipe to build cardano.🔥
 
 * Unable to use Github action due to service limitations
-* Unable to use qemu with amd64 due to ghc-pkg OFD hLock 
-* Build in amd64 2VCPU 8GMEM 30GSSD with 4G swapfile
-* Build in arm64v8 t4g.large 2VCPU 8GMEM 30GSSD Gravitron with 4G swapfile
+* For amd64 build in amd64 2VCPU 8GMEM 50GSSD with 4G swapfile
+* For arm64 build in arm64 t4g.large 2VCPU 8GMEM 30GSSD Gravitron with 4G swapfile
+* For arm64 build in arm64 raspberry pi 4VCPU 8GMEM 120GSSD with 4G swapfile
+* For riscv64 build in qemu in amd64 4VCPU 20GMEM 50GHD with 8GSSD swapfile
 
 # Build your own container. 🏗️
-From a ubuntu:groovy prepare for docker build multiarch environment.
+From a ubuntu:hirsute prepare for docker build multiarch environment.
 
 At the moment, due to described qemu emulation problems, the container is built in the same architecture.
 
@@ -157,7 +159,7 @@ make
 # Build using cache repo pre-compiled cardano binaries. ⌛
 This uses a pre-builded cardano binary created in the full build process "/cardano.tgz".
 
-From a ubuntu:groovy prepare for docker build multiarch environment.
+From a ubuntu:hirsute prepare for docker build multiarch environment.
 
 At the moment, due to described qemu emulation problems, the container is built in the same architecture.
 
