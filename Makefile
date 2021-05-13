@@ -1,20 +1,37 @@
 .PHONY : manifest cache build all
 DOCKER_TAG := juampe/cardano
-#CARDANO_VERSION := $(shell curl -s https://api.github.com/repos/input-output-hk/cardano-node/releases/latest | jq -r ".tag_name")
-CARDANO_VERSION:= 1.26.2
-RELEASE_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-new
+CARDANO_VERSION := $(shell curl -s https://api.github.com/repos/input-output-hk/cardano-node/releases/latest | jq -r ".tag_name")
+RELEASE_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)
 ARCH:= $(shell docker version -f "{{.Server.Arch}}")
 ARCHS:= amd64 arm64 riscv64
 JOBS:= "-j2"
+$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
 
-all: local-build local-manifest
+all: local-build loca-repo local-manifest
 
 show:
 	@echo $(DOCKER_TAG):$(ARCH)-$(CARDANO_VERSION)
 
+
 local-build:
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
 	docker build --build-arg JOBS="-j2" --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
+
+build-%64:
+	$(eval ARCH := $(subst build-,,$@))
+	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
+	@echo "Build cache $(ARCH_TAG)"
+	docker build --build-arg JOBS=$(JOBS) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
+
+
+local-repo:
+	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
+	docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
+	
+repo-%64:
+	$(eval ARCH := $(subst repo-,,$@))
+	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
+	docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
 
 cache: local-cache local-manifest
 
@@ -56,7 +73,7 @@ manifest-%64:
 	@echo "Publish $(ARCH_TAG)"
 #	docker pull $(ARCH_TAG)
 #	docker manifest rm $(ARCH_TAG)
-#	docker manifest create $(ARCH_TAG) --amend $(ARCH_TAG)
+	docker manifest create $(ARCH_TAG) --amend $(ARCH_TAG)
 	docker manifest annotate --arch $(ARCH) $(RELEASE_TAG) $(ARCH_TAG)
 	docker manifest push $(ARCH_TAG)
 
