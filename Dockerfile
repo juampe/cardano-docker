@@ -28,6 +28,7 @@ RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano \
   && cd /cardano \
   && git fetch --all --recurse-submodules --tags \
   && git checkout tags/${CARDANO_VERSION} \
+  && /util/config-cardano.sh ${TARGETARCH} ${GHC_VERSION} \
   && /usr/local/bin/cabal update \
   && /usr/local/bin/cabal configure -O0 -w ghc-${GHC_VERSION} \
   && /bin/echo -ne  "\npackage cardano-crypto-praos\n  flags: -external-libsodium-vrf\n" >>  cabal.project.local \
