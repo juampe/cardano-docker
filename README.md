@@ -22,7 +22,7 @@ It is based in ubuntu focal builder in a documented and formal way (supply chain
 
 Access to the multi-platform docker [image](https://hub.docker.com/r/juampe/cardano).
 # Minimize supply chain attack. 🔗
-You can supervise all the sources, all the build steps, build yourserlf.
+You can supervise all the sources, all the build steps, build yourself.
 # Multi-platform image 👪
 This is an efford to build cardano for several architectures.
 Supported platforms:
