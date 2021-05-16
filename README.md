@@ -17,7 +17,7 @@
 <!-- markdownlint-enable MD033 -->
 
 # Multiarch cardano docker container. 🐳
-Cardano docker is can now be supported as container a in Raspberri Pi or AWS Gravitron container platform.
+Cardano docker is can now be supported as container a in Raspberry Pi or AWS Gravitron container platform.
 It is based in ubuntu focal builder in a documented and formal way (supply chain review).
 
 Access to the multi-platform docker [image](https://hub.docker.com/r/juampe/cardano).
@@ -178,7 +178,7 @@ make cache
 # Experimental low resource procedure. 💸
 ## Use cases only for cardano dedicated resources
 
-* Raspberri Pi 4 with 4GibRAM and USB3.0 UASP+TRIM SSD (Homebrew)
+* Raspberry Pi 4 with 4GibRAM and USB3.0 UASP+TRIM SSD (Homebrew)
 * Old laptop x64 with 4GibRAM with SATA SSD (Homebrew)
 * AWS t4g.medium with gp2 disk (~1$/day)
 
