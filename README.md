@@ -150,10 +150,9 @@ sudo apt-get -y install git make docker.io byobu
 
 git clone https://github.com/juampe/cardano-docker.git
 cd cardano-docker
-git checkout 1.26.2
 
 #Adapt Makefile to DOCKER_TAG to tag and fit your own docker registry
-make
+make local-cache
 ```
 
 # Build using cache repo pre-compiled cardano binaries. ⌛
