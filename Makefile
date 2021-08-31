@@ -1,13 +1,14 @@
 .PHONY : manifest cache build all
 ARCH:= $(shell docker version -f "{{.Server.Arch}}")
-ARCHS:= amd64 arm64 riscv64
+#ARCHS:= amd64 arm64 riscv64
+ARCHS:= amd64 arm64
 DOCKER_TAG := juampe/cardano
 CARDANO_VERSION := $(shell curl -s https://api.github.com/repos/input-output-hk/cardano-node/releases/latest | jq -r ".tag_name")
-#CARDANO_VERSION := 1.26.2
+#CARDANO_VERSION := 1.27.0
 LATEST_TAG := $(DOCKER_TAG):latest
 RELEASE_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)
 ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH)
-JOBS:= "-j2"
+JOBS:= "-j1"
 
 ############
 #Local stuff
@@ -41,7 +42,7 @@ local-push:
 
 local-manifest: local-push
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
-	docker pull $(ARCH_TAG)
+	docker pull --platform linux/$(ARCH) $(ARCH_TAG)
 	docker manifest create $(ARCH_TAG) --amend $(ARCH_TAG)
 	docker manifest annotate --arch $(ARCH) $(ARCH_TAG) $(ARCH_TAG)
 	docker manifest push $(ARCH_TAG)
@@ -95,8 +96,8 @@ push: $(addprefix push-, $(ARCHS))
 pull-%64:
 	$(eval ARCH := $(subst pull-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
-	@echo "Push $(ARCH_TAG)"
-	docker pull $(ARCH_TAG)
+	@echo "Pull $(ARCH_TAG)"
+	docker pull --platform linux/$(ARCH) $(ARCH_TAG)
 
 pull: $(addprefix pull-, $(ARCHS))
 
@@ -104,7 +105,7 @@ manifest-%64:
 	$(eval ARCH := $(subst manifest-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
 	@echo "Publish $(ARCH_TAG)"
-	docker pull $(ARCH_TAG)
+	docker pull --platform linux/$(ARCH) $(ARCH_TAG)
 #	docker rm $(ARCH_TAG)
 	docker manifest create $(ARCH_TAG) --amend $(ARCH_TAG)
 	docker manifest annotate --arch $(ARCH) $(RELEASE_TAG) $(ARCH_TAG)
@@ -125,8 +126,8 @@ manifest-clean-%64:
 
 manifest-clean: $(addprefix manifest-clean-,$(ARCHS))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION))
-#	@echo "Clear manifest $(DOCKER_TAG):latest"
-#	docker manifest rm $(DOCKER_TAG):latest || return 0 >/dev/null
+	@echo "Clear manifest $(DOCKER_TAG):latest"
+	docker manifest rm $(DOCKER_TAG):latest || return 0 >/dev/null
 	
 manifest-base: $(addprefix amend-,$(ARCHS))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION))

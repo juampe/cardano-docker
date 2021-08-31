@@ -36,7 +36,12 @@ ENV LD_LIBRARY_PATH=/usr/local/lib \
   NODE_PROM_LISTEN="" \
   NODE_HEALTH=false \
   NODE_HEALTH_TIMEOUT=180 \
-  NODE_LOW_PRIORITY=false
+  NODE_HEALTH_CPU_PCT_WARN=90 \
+  NODE_HEALTH_CPU_PCT_KILL=95 \
+  NODE_LOW_PRIORITY=false \
+  NODE_RTS=false \
+  NODE_RTS_STATS=false \
+  NODE_RTS_OPTS="-N2 --disable-delayed-os-memory-return -I0.3 -Iw600 -A16m -F1.5 -H2500M -T"
 
 HEALTHCHECK --interval=10m --timeout=3m --retries=3 --start-period=20m CMD /scripts/healthCheck.sh || bash -c 'kill -s 2 -1 && (sleep 60; kill -s 9 -1)'
 

@@ -1,10 +1,11 @@
 #!/bin/bash
 VERSION=$(/usr/local/bin/cardano-node --version|grep cardano-node|awk '{print $2}')
 
+echo ">> Starting cardano $VERSION docker by Juampe. Enjoy it."
 #CONFIGURATION
 if [ ! -e "$NODE_CONFIG" ]
 then
-	echo "Initial config..."
+	echo ">> Initial config..."
 	mkdir -p $NODE_HOME
 	cd $NODE_HOME
 	mkdir -p config db sockets keys logs scripts  
@@ -12,7 +13,13 @@ then
 	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-config.json
 	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-byron-genesis.json
 	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-shelley-genesis.json
+	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-alonzo-genesis.json
 	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-topology.json
+	#Attach new eras
+	jq -s ".[0] * .[1]" /util/byron.js $NODE_NETWORK-topology.json.0 > $NODE_NETWORK-topology.json.0
+	jq -s ".[0] * .[1]" /util/shelley.js $NODE_NETWORK-topology.json.1 > $NODE_NETWORK-topology.json.2
+	jq -s ".[0] * .[1]" /util/alonzo.js $NODE_NETWORK-topology.json.2 > $NODE_NETWORK-topology.json.3
+	mv $NODE_NETWORK-topology.json.3 $NODE_NETWORK-topology.json
 	ls -al $NODE_HOME/config/*
 	echo "============================="
 fi
@@ -131,10 +138,28 @@ else
 	NODE_BINARY="/usr/local/bin/cardano-node"
 fi
 
+
+if [ "$NODE_RTS" == "false" ]
+then
+	NODE_RTS_OPTS=""
+	#NODE_RTS="+RTS -N2 --disable-delayed-os-memory-return -I0.3 -Iw600 -A16m -F1.5 -H2500M -T -S -RTS"
+	echo ">> RTS Disabled"
+else
+	echo ">> RTS Enabled"
+	if [ "$NODE_RTS_STATS" == "true" ]
+	then
+		NODE_RTS_OPTS="$NODE_RTS_OPTS -S"
+		echo ">> RTS Stats"
+	fi 
+	NODE_RTS_OPTS="+RTS $NODE_RTS_OPTS -RTS"
+	echo ">> RTS Options $NODE_RTS_OPTS"
+fi
+
 #Run cardano and handle SIGINT for gracefuly shutdown
 if [ "$NODE_RUNAS_CORE" == "true" ]
 then
 	exec $NODE_BINARY run \
+	$NODE_RTS_OPTS \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
   	--config $NODE_CONFIG  \
@@ -146,6 +171,7 @@ then
 	--shelley-operational-certificate $NODE_SHELLEY_OPERATIONAL_CERTIFICATE
 else
 	exec $NODE_BINARY run \
+	$NODE_RTS_OPTS \
   	--database-path $NODE_HOME/db \
   	--socket-path $NODE_HOME/sockets/node.socket \
   	--config $NODE_CONFIG  \

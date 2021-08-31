@@ -8,7 +8,7 @@ ARG GHC_VERSION=8.10.4
 ARG CARDANO_VERSION=1.26.2
 ARG JOBS="-j1"
 
-# export TARGETARCH=riscv64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.4.0.0 GHC_VERSION=8.10.2 CARDANO_VERSION=1.27.0 JOBS="-j1"
+# export TARGETARCH=riscv64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.4.0.0 GHC_VERSION=8.10.4 CARDANO_VERSION=1.27.0 JOBS="-j1"
 
 COPY util/ /util/
 RUN /util/install-deb.sh ${TARGETARCH}
@@ -28,11 +28,14 @@ RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano \
   && cd /cardano \
   && git fetch --all --recurse-submodules --tags \
   && git checkout tags/${CARDANO_VERSION} \
-  && /util/config-cardano.sh ${TARGETARCH} ${GHC_VERSION} \
+  && /util/config-cardano.sh ${TARGETARCH} ${CARDANO_VERSION} \
   && /usr/local/bin/cabal update \
   && /usr/local/bin/cabal configure -O0 -w ghc-${GHC_VERSION} \
   && /bin/echo -ne  "\npackage cardano-crypto-praos\n  flags: -external-libsodium-vrf\n" >>  cabal.project.local \
-  && sed -i ~/.cabal/config -e "s/overwrite-policy:/overwrite-policy: always/g" \
+  && /bin/echo -ne  "\npackage entropy\n  flags: -latomic\n  ghc-flags: -latomic\n" >>  cabal.project.local \
+  && sed -i ~/.cabal/config -e "s/overwrite-policy:/overwrite-policy: always/g" 
+
+RUN cd /cardano \
   && export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH" \
   && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH" \
   && /usr/local/bin/cabal build ${JOBS} cardano-cli cardano-node
@@ -76,7 +79,12 @@ ENV LD_LIBRARY_PATH=/usr/local/lib \
   NODE_PROM_LISTEN="" \
   NODE_HEALTH=false \
   NODE_HEALTH_TIMEOUT=180 \
-  NODE_LOW_PRIORITY=false
+  NODE_HEALTH_CPU_PCT_WARN=90 \
+  NODE_HEALTH_CPU_PCT_KILL=95 \
+  NODE_LOW_PRIORITY=false \
+  NODE_RTS=false \
+  NODE_RTS_STATS=false \
+  NODE_RTS_OPTS="-N2 --disable-delayed-os-memory-return -I0.3 -Iw600 -A16m -F1.5 -H2500M -T"
 
 HEALTHCHECK --interval=10m --timeout=3m --retries=3 --start-period=20m CMD /scripts/healthCheck.sh || bash -c 'kill -s 2 -1 && (sleep 60; kill -s 9 -1)'
 

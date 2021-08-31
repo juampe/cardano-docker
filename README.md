@@ -75,7 +75,12 @@ Access to the debootstrap ubuntu git [repository](https://github.com/juampe/ubun
 |NODE_PROM_LISTEN|""|Listen address for prometheus monitor|
 |NODE_HEALTH|false|Enable tip health monitoring, disable it for upgrade from a db previous version|
 |NODE_HEALTH_TIMEOUT|180|Timeout to get tip health test|
+|NODE_HEALTH_CPU_PCT_WARN|90|Initial CPU usage to check interval CPU usate |
+|NODE_HEALTH_CPU_PCT_KILL|95|Interval CPU usage if exceded unhealth the container|
 |NODE_LOW_PRIORITY|false|Run the node with CPU low priority and best-effort IO scheduler|
+|NODE_RTS|false|Enable custom RTS options|
+|NODE_RTS_STATS|false|Display stats to stdout|
+|NODE_RTS_OPTS|-N2 --disable-delayed-os-memory-return -I0.3 -Iw600 -A16m -F1.5 -H2500M -T|Memory optimization RTS options|
 
 
 ## Examples. 🗜️

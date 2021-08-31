@@ -7,7 +7,7 @@ apt-get -y update
 apt-get -y upgrade
 
 case $ARCH in
-	arm64)
+	arm64|riscv64)
 		apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config \
         libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool \
         autoconf libnuma1 libnuma-dev llvm-9 llvm-9-dev
@@ -18,13 +18,8 @@ case $ARCH in
         autoconf
         ;;
     riscv64)
-        #workaround until riscv64 ghc releases
-        apt-get -y install debian-ports-archive-keyring
-        /bin/echo -ne "deb http://ftp.ports.debian.org/debian-ports experimental main\ndeb-src http://ftp.ports.debian.org/debian-ports experimental main\n"> /etc/apt/sources.list.d/experimental.list
-        /bin/echo -ne "Package: ghc\nPin: release a=experimental\nPin-Priority: 600" > /etc/apt/preferences.d/ghc.pref
-        apt-get -y update
-		apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config \
-        libffi7 libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool \
-        autoconf libnuma1 libnuma-dev llvm-9 llvm-9-dev libbsd-dev ghc
+        apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config \
+        libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool \
+        autoconf libnuma1 libnuma-dev llvm-9 llvm-9-dev
 	    ;;
 esac
