@@ -1,5 +1,6 @@
 ARG TARGETARCH
-FROM juampe/ubuntu:hirsute-${TARGETARCH} as builder
+ARG UBUNTU
+FROM ${UBUNTU}-${TARGETARCH} as builder
 
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND="noninteractive"
@@ -46,7 +47,8 @@ RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/loc
   && tar -cvzf /cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium*
 
 #Now the final container with our cardano installed
-FROM juampe/ubuntu:hirsute-${TARGETARCH}
+#FROM juampe/${UBUNTU}-${TARGETARCH}
+FROM ${UBUNTU}-${TARGETARCH}
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tgz /
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase libnuma1 && apt-get -y clean

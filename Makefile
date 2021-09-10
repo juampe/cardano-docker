@@ -8,7 +8,8 @@ CARDANO_VERSION := $(shell curl -s https://api.github.com/repos/input-output-hk/
 LATEST_TAG := $(DOCKER_TAG):latest
 RELEASE_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)
 ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH)
-JOBS:= "-j1"
+JOBS := "-j1"
+UBUNTU := ubuntu:hirsute
 
 ############
 #Local stuff
@@ -20,20 +21,27 @@ show:
 
 local-build:
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
-	docker build --build-arg JOBS="-j2" --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
+	docker image rm $(UBUNTU)-$(ARCH) || true
+	docker pull --platform linux/$(ARCH) $(UBUNTU)
+	docker image tag $(UBUNTU) $(UBUNTU)-$(ARCH)
+	docker build --build-arg JOBS="-j2" --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
 
 local-repo:
 ifeq ($(shell test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz && echo -n yes),yes)
 	@echo "repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz already exist"
 else
-	docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
+#docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
+	docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'tar -cvzf /tmp/cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium*; cat /tmp/cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
 endif
 
 cache: local-cache local-manifest
 
 local-cache: 
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
-	docker build --build-arg JOBS="-j2" --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile.cache .
+	docker image rm $(UBUNTU)-$(ARCH)
+	docker pull --platform linux/$(ARCH) $(UBUNTU)
+	docker image tag $(UBUNTU) $(UBUNTU)-$(ARCH)
+	docker build --build-arg JOBS="-j2" --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile.cache .
 #	docker push $(ARCH_TAG)
 
 local-push:
@@ -57,8 +65,12 @@ build: $(addprefix build-, $(ARCHS))
 build-%64:
 	$(eval ARCH := $(subst build-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
+	docker image rm $(UBUNTU)-$(ARCH) || true
+	docker pull --platform linux/$(ARCH) $(UBUNTU)
+	docker image tag $(UBUNTU) $(UBUNTU)-$(ARCH)
+#docker pull --platform linux/$(ARCH) juampe/ubuntu:hirsute-$(ARCH)
 	@echo "Build cache $(ARCH_TAG)"
-	docker build --build-arg JOBS=$(JOBS) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
+	docker build --build-arg JOBS=$(JOBS) --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
 
 
 #Parse 2 pipeline
@@ -66,7 +78,7 @@ repo: $(addprefix repo-, $(ARCHS))
 repo-%64:
 	$(eval ARCH := $(subst repo-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
-ifeq ($(shell test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz && echo -n yes),yes)
+ifeq ($(shell test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz && echo -n ys),yes)
 	@echo "repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz already exist"
 else
 	docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
@@ -75,8 +87,11 @@ endif
 cache-%64:
 	$(eval ARCH := $(subst cache-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
+	docker image rm $(UBUNTU)-$(ARCH)
+	docker pull --platform linux/$(ARCH) $(UBUNTU)
+	docker image tag $(UBUNTU) $(UBUNTU)-$(ARCH)
 	@echo "Build cache $(ARCH_TAG)"
-	docker build --build-arg JOBS=$(JOBS) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile.cache .
+	docker build --build-arg JOBS=$(JOBS) --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile.cache .
 
 #Phase 2 pipeline	
 publish: $(addprefix cache-, $(ARCHS)) manifest
