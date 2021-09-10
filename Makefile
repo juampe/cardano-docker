@@ -4,12 +4,12 @@ ARCH:= $(shell docker version -f "{{.Server.Arch}}")
 ARCHS:= amd64 arm64
 DOCKER_TAG := juampe/cardano
 CARDANO_VERSION := $(shell curl -s https://api.github.com/repos/input-output-hk/cardano-node/releases/latest | jq -r ".tag_name")
-#CARDANO_VERSION := 1.27.0
 LATEST_TAG := $(DOCKER_TAG):latest
 RELEASE_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)
 ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH)
-JOBS := "-j1"
+JOBS := -j1
 UBUNTU := ubuntu:hirsute
+
 
 ############
 #Local stuff
@@ -36,7 +36,13 @@ endif
 
 cache: local-cache local-manifest
 
-local-cache: 
+fetch-cache:
+	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
+	$(eval CARDANO_FILE := cardano-$(ARCH)-$(CARDANO_VERSION).tgz)
+	$(eval CARDANO_REPO := https://iquis.com/repo/cardano/$(CARDANO_FILE))
+	cd repo && wget -c -N $(CARDANO_REPO)  
+
+local-cache: fetch-cache
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
 	docker image rm $(UBUNTU)-$(ARCH)
 	docker pull --platform linux/$(ARCH) $(UBUNTU)
