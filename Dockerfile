@@ -1,6 +1,6 @@
-ARG TARGETARCH
-ARG UBUNTU
-FROM ${UBUNTU}-${TARGETARCH} as builder
+# syntax=docker/dockerfile:1.2
+ARG UBUNTU="ubuntu:hirsute"
+FROM ${UBUNTU} as builder
 
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND="noninteractive"
@@ -12,6 +12,7 @@ ARG JOBS="-j1"
 # export TARGETARCH=riscv64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.4.0.0 GHC_VERSION=8.10.4 CARDANO_VERSION=1.27.0 JOBS="-j1"
 
 COPY util/ /util/
+
 RUN /util/install-deb.sh ${TARGETARCH}
 RUN /util/install-cabal.sh ${TARGETARCH} ${CABAL_VERSION}
 RUN /util/install-ghc.sh ${TARGETARCH} ${GHC_VERSION}
@@ -25,6 +26,7 @@ RUN git clone https://github.com/input-output-hk/libsodium /libsodium \
   && make ${JOBS} install
 
 #Compile cardano 
+COPY patches/ /patches/
 RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano \
   && cd /cardano \
   && git fetch --all --recurse-submodules --tags \
@@ -33,13 +35,13 @@ RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano \
   && /usr/local/bin/cabal update \
   && /usr/local/bin/cabal configure -O0 -w ghc-${GHC_VERSION} \
   && /bin/echo -ne  "\npackage cardano-crypto-praos\n  flags: -external-libsodium-vrf\n" >>  cabal.project.local \
-  && /bin/echo -ne  "\npackage entropy\n  flags: -latomic\n  ghc-flags: -latomic\n" >>  cabal.project.local \
+  && /bin/echo -ne  "\npackage entropy\n  flags: -latomic\n  ghc-options: -latomic\n" >>  cabal.project.local \
   && sed -i ~/.cabal/config -e "s/overwrite-policy:/overwrite-policy: always/g" 
 
 RUN cd /cardano \
   && export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH" \
   && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH" \
-  && /usr/local/bin/cabal build ${JOBS} cardano-cli cardano-node
+  && /usr/local/bin/cabal build --ghc-options='-latomic' ${JOBS} cardano-cli cardano-node
 
 # Create dist file
 RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/local/bin/cardano-cli \
@@ -48,7 +50,7 @@ RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/loc
 
 #Now the final container with our cardano installed
 #FROM juampe/${UBUNTU}-${TARGETARCH}
-FROM ${UBUNTU}-${TARGETARCH}
+FROM ${UBUNTU}
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tgz /
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase libnuma1 && apt-get -y clean
