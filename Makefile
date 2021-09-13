@@ -74,7 +74,7 @@ build-%64:
 	$(eval ARCH := $(subst build-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
 	$(eval BUILDAH_CACHE := -v $(PWD)/cache/.cabal:/root/.cabal)
-	podman bud $(BUILDAH_CACHE) --layers --platform linux/$(ARCH) --build-arg JOBS=$(JOBS) --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
+	buildah bud $(BUILDAH_CACHE) --layers --platform linux/$(ARCH) --build-arg JOBS=$(JOBS) --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
 
 #Parse 2 pipeline
 repo: $(addprefix repo-, $(ARCHS))
