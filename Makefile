@@ -1,14 +1,15 @@
 .PHONY : manifest cache build all
 ARCH:= $(shell docker version -f "{{.Server.Arch}}")
-#ARCHS:= amd64 arm64 riscv64
-ARCHS:= amd64 arm64
+ARCHS:= amd64 arm64 riscv64
 DOCKER_TAG := juampe/cardano
+UBUNTU := ubuntu:hirsute
+#UBUNTU := juampe/ubuntu:hirsute
 CARDANO_VERSION := $(shell curl -s https://api.github.com/repos/input-output-hk/cardano-node/releases/latest | jq -r ".tag_name")
 LATEST_TAG := $(DOCKER_TAG):latest
 RELEASE_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)
 ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH)
 JOBS := -j1
-UBUNTU := ubuntu:hirsute
+
 
 
 ############
@@ -19,6 +20,9 @@ all: local-build local-repo local-cache local-manifest
 show:
 	@echo $(ARCH_TAG)
 
+qemu-reset:
+	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
 local-build:
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
 	docker image rm $(UBUNTU)-$(ARCH) || true
@@ -27,12 +31,9 @@ local-build:
 	docker build --build-arg JOBS="-j2" --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
 
 local-repo:
-ifeq ($(shell test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz && echo -n yes),yes)
-	@echo "repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz already exist"
-else
-#docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
-	docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'tar -cvzf /tmp/cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium*; cat /tmp/cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
-endif
+	(test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz && echo "repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz already exist") || true
+	test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz || ( echo "dumping repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz ..." && docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'tar -czf /tmp/cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium* > /dev/null 2>&1 ; cat /tmp/cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz)
+#	test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz || ( echo "dumping repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz ..." && docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz)
 
 cache: local-cache local-manifest
 
@@ -68,15 +69,15 @@ pilepine: build repo publish
 
 #Phase 1 pipeline
 build: $(addprefix build-, $(ARCHS))
-build-%64:
+build-%64: qemu-reset
 	$(eval ARCH := $(subst build-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
-	docker image rm $(UBUNTU)-$(ARCH) || true
-	docker pull --platform linux/$(ARCH) $(UBUNTU)
-	docker image tag $(UBUNTU) $(UBUNTU)-$(ARCH)
-#docker pull --platform linux/$(ARCH) juampe/ubuntu:hirsute-$(ARCH)
-	@echo "Build cache $(ARCH_TAG)"
-	docker build --build-arg JOBS=$(JOBS) --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
+#	$(eval BUILDAH_CACHE := -v $(PWD)/cache/.cabal:/root/.cabal)
+	$(eval BUILDAH_CACHE := -v $(HOME)/.cabal:/root/.cabal)
+#	docker buildx build $(BUILDX_CACHE) --platform linux/$(ARCH) --build-arg JOBS=$(JOBS) --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
+	buildah bud $(BUILDAH_CACHE) --layers --platform linux/$(ARCH) --build-arg JOBS=$(JOBS) --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile .
+#cached
+#docker buildx build $(BUILDX_CACHE) --platform linux/$(ARCH)
 
 
 #Parse 2 pipeline
@@ -84,20 +85,24 @@ repo: $(addprefix repo-, $(ARCHS))
 repo-%64:
 	$(eval ARCH := $(subst repo-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
-ifeq ($(shell test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz && echo -n ys),yes)
-	@echo "repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz already exist"
-else
-	docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
-endif
+	(test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz && echo "repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz already exist") || true
+	test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz || ( echo "dumping repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz ..." && podman run --entrypoint "" --rm $(ARCH_TAG) bash -c 'tar -czf /tmp/cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium* > /dev/null 2>&1 ; cat /tmp/cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz)
 
-cache-%64:
+#	docker run --entrypoint "" --rm $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
+#	podman run --entrypoint "" --rm $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
+#	buildah run $(ARCH_TAG) bash -c 'cat /cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz
+
+
+multi-cache: $(addprefix cache-, $(ARCHS))
+
+cache-%64: qemu-reset
 	$(eval ARCH := $(subst cache-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
-	docker image rm $(UBUNTU)-$(ARCH)
+	docker image rm $(UBUNTU)-$(ARCH) || true
 	docker pull --platform linux/$(ARCH) $(UBUNTU)
 	docker image tag $(UBUNTU) $(UBUNTU)-$(ARCH)
 	@echo "Build cache $(ARCH_TAG)"
-	docker build --build-arg JOBS=$(JOBS) --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile.cache .
+	docker build --platform linux/$(ARCH) --build-arg JOBS=$(JOBS) --build-arg UBUNTU=$(UBUNTU) --build-arg TARGETARCH=$(ARCH) --build-arg CARDANO_VERSION=$(CARDANO_VERSION) -t $(ARCH_TAG) -f Dockerfile.cache .
 
 #Phase 2 pipeline	
 publish: $(addprefix cache-, $(ARCHS)) manifest
@@ -163,3 +168,4 @@ manifest: push manifest-base $(addprefix manifest-,$(ARCHS))
 	@echo "Publish update $(DOCKER_TAG)"
 	docker manifest push $(LATEST_TAG)
 	docker manifest push $(RELEASE_TAG)
+
