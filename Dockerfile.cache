@@ -1,5 +1,6 @@
+# syntax=docker/dockerfile:1.2
 ARG TARGETARCH
-ARG UBUNTU
+ARG UBUNTU="ubuntu:hirsute"
 FROM ${UBUNTU}-${TARGETARCH} as builder
 
 ARG DEBIAN_FRONTEND="noninteractive"
