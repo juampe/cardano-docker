@@ -170,11 +170,10 @@ At the moment, due to described qemu emulation problems, the container is built 
 
 ```
 sudo apt-get update
-sudo apt-get -y install git git-lfs make docker.io byobu
+sudo apt-get -y install git git-lfs make docker.io byobu buildah podman
 
 git clone https://github.com/juampe/cardano-docker.git
 cd cardano-docker
-git lfs pull
 
 #Adapt Makefile to DOCKER_TAG to tag and fit your own docker registry
 make local-cache
