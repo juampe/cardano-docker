@@ -3,6 +3,7 @@ ARCH=$1
 
 echo "Download Debs for $ARCH"
 cat /etc/apt/sources.list|sed -e 's/^deb /deb-src /' >> /etc/apt/sources.list
+echo "nameserver 1.1.1.1" > /etc/resolv.conf
 apt-get -y update 
 apt-get -y upgrade
 
