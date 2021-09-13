@@ -9,7 +9,7 @@ ARG GHC_VERSION=8.10.4
 ARG CARDANO_VERSION=1.26.2
 ARG JOBS="-j1"
 
-# export TARGETARCH=riscv64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.4.0.0 GHC_VERSION=8.10.4 CARDANO_VERSION=1.27.0 JOBS="-j1"
+# export TARGETARCH=riscv64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.4.0.0 GHC_VERSION=8.10.4 CARDANO_VERSION=1.29.0 JOBS="-j1"
 
 COPY util/ /util/
 
@@ -49,7 +49,6 @@ RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/loc
   && tar -cvzf /cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium*
 
 #Now the final container with our cardano installed
-#FROM juampe/${UBUNTU}-${TARGETARCH}
 FROM ${UBUNTU}
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tgz /

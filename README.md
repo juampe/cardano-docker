@@ -152,6 +152,7 @@ At the moment, due to described qemu emulation problems, the container is built 
 ```
 sudo apt-get update
 sudo apt-get -y install git make docker.io byobu
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
 git clone https://github.com/juampe/cardano-docker.git
 cd cardano-docker
@@ -283,8 +284,11 @@ dockerlog relay0
 ```
 docker exec -it relay0 /home/cardano/cnode/scripts/gLiveView.sh
 ```
+
 # Enjoy!🍿
+
 For the Cardano comunnity from NUTCK pool (https://nutcracker.work).
 
 🙏If you apprecciate the effort, please consider to support us making a Cardano (ADA) donation.
 >addr1qys8y92emhj6r5rs7puw6df9ahcvna6gtdm7jlseg8ek7xf46xjc0eelmgtjvmcl9tjgaamz93f4e5nu86dus6grqyrqd28l0r
+
