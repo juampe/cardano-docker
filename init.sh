@@ -16,10 +16,10 @@ then
 	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-alonzo-genesis.json
 	wget -q https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/$NODE_NETWORK-topology.json
 	#Attach new eras
-	jq -s ".[0] * .[1]" /util/byron.js $NODE_NETWORK-topology.json.0 > $NODE_NETWORK-topology.json.0
-	jq -s ".[0] * .[1]" /util/shelley.js $NODE_NETWORK-topology.json.1 > $NODE_NETWORK-topology.json.2
-	jq -s ".[0] * .[1]" /util/alonzo.js $NODE_NETWORK-topology.json.2 > $NODE_NETWORK-topology.json.3
-	mv $NODE_NETWORK-topology.json.3 $NODE_NETWORK-topology.json
+	jq -s ".[0] * .[1]" /util/byron.js $NODE_NETWORK-config.json.0 > $NODE_NETWORK-config.json.0
+	jq -s ".[0] * .[1]" /util/shelley.js $NODE_NETWORK-config.json.1 > $NODE_NETWORK-config.json.2
+	jq -s ".[0] * .[1]" /util/alonzo.js $NODE_NETWORK-config.json.2 > $NODE_NETWORK-config.json.3
+	mv $NODE_NETWORK-config.json.3 $NODE_NETWORK-config.json
 	ls -al $NODE_HOME/config/*
 	echo "============================="
 fi
