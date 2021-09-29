@@ -1,8 +1,6 @@
 #!/bin/bash
 ARCH=$1
 RELEASE=$2
-#BASE="https://github.com/juampe/base-ghc/raw/main"
-#Backup due to LFS Github Limitations
 BASE="https://iquis.com/repo"
 echo "Download GHC $ARCH-$RELEASE"
 case $ARCH in
@@ -23,11 +21,11 @@ then
 
 	wget "$URL" -O /ghc.tar.xz
 	tar -xf /ghc.tar.xz -C /
-	cd /ghc-$RELEASE/
+	cd /ghc-*/
 	./configure
 	make install
 	cd /
-	rm -Rf /ghc.tar.xz /ghc-$RELEASE
+	rm -Rf /ghc.tar.xz /ghc-*
 fi
 ghc --version
 #/usr/local/bin/ghc --version
