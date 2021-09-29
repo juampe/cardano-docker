@@ -6,7 +6,7 @@ ARG TARGETARCH
 ARG DEBIAN_FRONTEND="noninteractive"
 ARG CABAL_VERSION=3.4.0.0
 ARG GHC_VERSION=8.10.4
-ARG CARDANO_VERSION=1.26.2
+ARG CARDANO_VERSION=1.30.1
 ARG JOBS="-j1"
 
 # export TARGETARCH=riscv64 DEBIAN_FRONTEND="noninteractive" CABAL_VERSION=3.4.0.0 GHC_VERSION=8.10.4 CARDANO_VERSION=1.29.0 JOBS="-j1"
@@ -33,15 +33,12 @@ RUN git clone https://github.com/input-output-hk/cardano-node.git /cardano \
   && git checkout tags/${CARDANO_VERSION} \
   && /util/config-cardano.sh ${TARGETARCH} ${CARDANO_VERSION} \
   && /usr/local/bin/cabal update \
-  && /usr/local/bin/cabal configure -O0 -w ghc-${GHC_VERSION} \
+  && /usr/local/bin/cabal configure -O0 -w ghc \
   && /bin/echo -ne  "\npackage cardano-crypto-praos\n  flags: -external-libsodium-vrf\n" >>  cabal.project.local \
   && /bin/echo -ne  "\npackage entropy\n  flags: -latomic\n  ghc-options: -latomic\n" >>  cabal.project.local \
   && sed -i ~/.cabal/config -e "s/overwrite-policy:/overwrite-policy: always/g" 
 
-RUN cd /cardano \
-  && export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH" \
-  && export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH" \
-  && /usr/local/bin/cabal build --ghc-options='-latomic' ${JOBS} cardano-cli cardano-node
+RUN /util/build-cardano.sh ${TARGETARCH} ${CARDANO_VERSION} ${JOBS}
 
 # Create dist file
 RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/local/bin/cardano-cli \
@@ -49,7 +46,9 @@ RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/loc
   && tar -cvzf /cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium*
 
 #Now the final container with our cardano installed
+ARG UBUNTU="ubuntu:hirsute"
 FROM ${UBUNTU}
+
 ARG DEBIAN_FRONTEND="noninteractive"
 COPY --from=builder /cardano.tgz /
 RUN apt-get -y update && apt-get -y upgrade && apt-get -y install --no-install-recommends bash curl jq miniupnpc iproute2 wget ca-certificates bc tcptraceroute netbase libnuma1 && apt-get -y clean
