@@ -10,8 +10,6 @@ RELEASE_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)
 ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH)
 JOBS := -j1
 
-
-
 ############
 #Local stuff
 ############
@@ -33,10 +31,13 @@ local-build-clean:
 	buildah rm -a
 	buildah rmi -a
 
+#TODO this dose not work well with podman
 local-repo:
 	$(eval IMAGE := repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz)
 	(test -s $(IMAGE) && echo "$(IMAGE) already exist") || true
-	test -s $(IMAGE) || ( echo "dumping $(IMAGE) ..." && podman run --entrypoint "" --rm $(ARCH_TAG) bash -c 'tar -czf /tmp/cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium* > /dev/null 2>&1 ; cat /tmp/cardano.tgz' > $(IMAGE))
+	test -s $(IMAGE) || ( echo "dumping $(IMAGE) ..." && podman run --entrypoint "" --rm localhost/$(ARCH_TAG) bash -c 'tar -czf /tmp/cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium* > /dev/null 2>&1 ; cat /tmp/cardano.tgz' > $(IMAGE))
+#	test -s $(IMAGE) || ( echo "dumping $(IMAGE) ..." && podman run --entrypoint "" --rm localhost/$(ARCH_TAG) bash -c 'cat /cardano.tgz' > $(IMAGE))
+	
 
 local-fetch-cache:
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
@@ -70,15 +71,17 @@ local-manifest: local-push
 local-publish: local-cache local-manifest
 
 
-
 ################
 #Multiarch stuff
 ################
 pilepine: build repo publish
 
+qemu:
+	docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
 #Phase 1 pipeline build
 build: $(addprefix build-, $(ARCHS))
-build-%64:
+build-%64: qemu
 	$(eval ARCH := $(subst build-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
 	$(eval BUILDAH_CACHE := -v $(PWD)/cache/.cabal:/root/.cabal)
@@ -92,9 +95,7 @@ repo-%64:
 	(test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz && echo "repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz already exist") || true
 	test -s repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz || ( echo "dumping repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz ..." && podman run --entrypoint "" --rm $(ARCH_TAG) bash -c 'tar -czf /tmp/cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium* > /dev/null 2>&1 ; cat /tmp/cardano.tgz' > repo/cardano-$(ARCH)-$(CARDANO_VERSION).tgz)
 
-
 cache: $(addprefix cache-, $(ARCHS))
-
 cache-%64:
 	$(eval ARCH := $(subst cache-,,$@))
 	$(eval ARCH_TAG := $(DOCKER_TAG):$(CARDANO_VERSION)-$(ARCH))
