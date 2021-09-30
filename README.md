@@ -17,8 +17,8 @@
 <!-- markdownlint-enable MD033 -->
 
 # Multiarch cardano docker container. 🐳
-Cardano docker is can now be supported as container a in Raspberry Pi or AWS Gravitron container platform.
-It is based in ubuntu hirsute builder in a documented and formal way (supply chain review).
+Cardano docker can now be supported as container a in Raspberry Pi, AWS Gravitron container platform or RV64 Sifive Unmatched.
+It is based in offical ubuntu hirsute builder in a documented and formal way (supply chain review).
 
 Access to the multi-platform docker [image](https://hub.docker.com/r/juampe/cardano).
 # Minimize supply chain attack. 🔗
@@ -33,9 +33,6 @@ Supported platforms:
 
 Access to the git [repository](https://github.com/juampe/cardano-docker)
 
-Access to the debootstrap ubuntu [image](https://hub.docker.com/r/juampe/ubuntu).
-
-Access to the debootstrap ubuntu git [repository](https://github.com/juampe/ubuntu)
 
 # Running a Cardano-Node ⚡
 ## Cardano directory scheme
@@ -109,8 +106,8 @@ CVER="juampe/cardano"
 docker pull $CVER
 docker stop -t 60 $DNAME
 docker rm $DNAME
-docker run --init -d --restart=always --network=host --name="$DNAME" -v /home/cardano/cnode:/home/cardano/cnode -e "TZ=Europe/Madrid"  -e "NODE_CORE=core1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" -e "NODE_TOPOLOGY_PULL_MAX=20" -e "NODE_PROM_LISTEN=0.0.0.0" $CVER
-dockerlog $DNAME
+docker run --init -d --restart=on-failure --network=host --name="$DNAME" --hostname "$DNAME" -v /home/cardano/cnode:/home/cardano/cnode -e "TZ=Europe/Madrid"  -e "NODE_CORE=core1:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_TOPOLOGY_PUSH=true" -e "NODE_TOPOLOGY_PULL=true" -e "NODE_TOPOLOGY_PULL_MAX=10" -e "NODE_PROM_LISTEN=0.0.0.0" -e "NODE_HEALTH=true"  -e "NODE_HEALTH_TIMEOUT=180" -e "NODE_PORT=6000"  -e "NODE_LOW_PRIORITY=true" -e "NODE_RTS=true" -e "NODE_RTS_OPTS=-N2 --disable-delayed-os-memory-return -I0.3 -Iw600 -A16m -F1.5 -H2500M -T" $CVER
+docker logs --tail 50 --follow --timestamps $DNAME
 EOF
 chmod 755 run.sh
 ./run.sh
@@ -128,7 +125,7 @@ CVER="juampe/cardano"
 docker pull $CVER
 docker stop -t 60 $DNAME
 docker rm $DNAME
-docker run --init -d --restart=always --network=host --name="core1" -v /home/cardano/cnode:/home/cardano/cnode -e "TZ=Europe/Madrid"  -e "NODE_CUSTOM_PEERS=relay0.nutcracker.work:6000:1,relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_PROM_LISTEN=0.0.0.0" -e "NODE_RUNAS_CORE=true" -e "NODE_TRACE_MEMPOOL=true" $CVER
+docker run --init -d --restart=always --network=host --name="core1" -v /home/cardano/cnode:/home/cardano/cnode -e "TZ=Europe/Madrid"  -e "NODE_CUSTOM_PEERS=relay0.nutcracker.work:6000:1,relay1.nutcracker.work:6000:1,relay2.nutcracker.work:6000:1" -e "NODE_UPDATE_TOPOLOGY=true" -e "NODE_PROM_LISTEN=0.0.0.0" -e "NODE_RUNAS_CORE=true" -e "NODE_TRACE_MEMPOOL=true" -e "NODE_HEALTH=true"  -e "NODE_HEALTH_TIMEOUT=180" -e "NODE_PORT=6000"  -e "NODE_LOW_PRIORITY=true" -e "NODE_RTS=true" -e "NODE_RTS_OPTS=-N2 --disable-delayed-os-memory-return -I0.3 -Iw600 -A16m -F1.5 -H2500M -T" $CVER
 dockerlog $DNAME
 EOF
 chmod 755 run.sh
@@ -151,8 +148,23 @@ At the moment, due to described qemu emulation problems, the container is built 
 
 ```
 sudo apt-get update
-sudo apt-get -y install git make docker.io byobu
-docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+sudo apt-get -y install git make docker.io buildah podman
+
+git clone https://github.com/juampe/cardano-docker.git
+cd cardano-docker
+
+#Adapt Makefile to DOCKER_TAG to tag and fit your own docker registry
+make
+```
+
+# Build using cache repo pre-compiled cardano binaries. ⌛
+This uses a pre-builded cardano binary created in the full build process "/cardano.tgz".
+From a ubuntu:hirsute prepare for docker build multiarch environment.
+
+
+```
+sudo apt-get update
+sudo apt-get -y install git make docker.io qemu-user-static buildah podman
 
 git clone https://github.com/juampe/cardano-docker.git
 cd cardano-docker
@@ -161,22 +173,20 @@ cd cardano-docker
 make local-cache
 ```
 
-# Build using cache repo pre-compiled cardano binaries. ⌛
-This uses a pre-builded cardano binary created in the full build process "/cardano.tgz".
-
+# Build the entire pipeline for all architectures. 🏗️
 From a ubuntu:hirsute prepare for docker build multiarch environment.
 
 At the moment, due to described qemu emulation problems, the container is built in the same architecture.
 
 ```
 sudo apt-get update
-sudo apt-get -y install git git-lfs make docker.io byobu buildah podman
+sudo apt-get -y install git make docker.io qemu-user-static buildah podman
 
 git clone https://github.com/juampe/cardano-docker.git
 cd cardano-docker
 
 #Adapt Makefile to DOCKER_TAG to tag and fit your own docker registry
-make local-cache
+make pipeline
 ```
 
 # Experimental low resource procedure. 💸
