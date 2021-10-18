@@ -159,6 +159,7 @@ make
 
 # Build using cache repo pre-compiled cardano binaries. ⌛
 This uses a pre-builded cardano binary created in the full build process "/cardano.tgz".
+Due to github LFS quota, the respository not longer exist in github. 
 From a ubuntu:hirsute prepare for docker build multiarch environment.
 
 
