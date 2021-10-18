@@ -11,11 +11,11 @@ case $ARCH in
 	arm64|riscv64)
 		apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config \
         libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool \
-        autoconf libnuma1 libnuma-dev llvm-13 llvm-13-dev
+        autoconf libnuma1 libnuma-dev llvm-9 llvm-9-dev llvm-13 llvm-13-dev
 	    ;;
 	amd64) 
         apt-get -y install --no-install-recommends apt-utils bash curl wget ca-certificates automake build-essential pkg-config \
         libffi-dev libgmp-dev libssl-dev libtinfo-dev libsystemd-dev zlib1g-dev make g++ tmux git jq wget libncursesw5 libtool \
-        autoconf libnuma1 libnuma-dev llvm-13 llvm-13-dev
+        autoconf libnuma1 libnuma-dev llvm-13 llvm-13-dev llvm-13 llvm-13-dev
         ;;
 esac
