@@ -1,11 +1,11 @@
-# syntax=docker/dockerfile:1.2
-ARG UBUNTU="ubuntu:hirsute"
+# syntax=docker/dockerfile:2
+ARG UBUNTU="ubuntu:impish"
 FROM ${UBUNTU} as builder
 
 ARG TARGETARCH
 ARG DEBIAN_FRONTEND="noninteractive"
-ARG CABAL_VERSION=3.4.0.0
-ARG GHC_VERSION=8.10.4
+ARG CABAL_VERSION=3.6.0.0
+ARG GHC_VERSION=8.10.7
 ARG CARDANO_VERSION=1.30.1
 ARG JOBS="-j1"
 
@@ -43,7 +43,8 @@ RUN /util/build-cardano.sh ${TARGETARCH} ${CARDANO_VERSION} ${JOBS}
 # Create dist file
 RUN cp $(find /cardano/dist-newstyle/build -type f -name "cardano-cli") /usr/local/bin/cardano-cli \
   && cp $(find /cardano/dist-newstyle/build -type f -name "cardano-node") /usr/local/bin/cardano-node \
-  && tar -cvzf /cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium*
+  && tar -cvzf /cardano.tgz /usr/local/bin/cardano* /usr/local/lib/libsodium* \
+  && cp /cardano.tgz repo/cardano-${TARGETARCH}-${CARDANO_VERSION}.tgz
 
 #Now the final container with our cardano installed
 ARG UBUNTU="ubuntu:hirsute"
